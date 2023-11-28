@@ -21,15 +21,16 @@ from threading import Thread
 import sys
 import logging.handlers
 
+# Standalone Companion
+script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools')
+endpointcmd = "PYTHONUNBUFFERED=1 python3 ./tools/endpoint.py >> endpoint.log 2>&1 &"
+openai_endpointcmd = "PYTHONUNBUFFERED=1 python3 ./tools/endpointopenai.py >> endpoint_openai.log 2>&1 &"
 
-script_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
-config_path = os.path.join(script_dir, './config.yaml')
-litellm_proxycmd = "PYTHONUNBUFFERED=1 litellm --config ./config.yaml >> litellmlog 2>&1 &"
 
 
 polling_active = False
-endpointcmd = "PYTHONUNBUFFERED=1 python3 ./endpoint.py >> endpoint.log 2>&1 &"
-kill_endpointcmd = "pkill -f './endpoint.py'"
+endpointcmd = "PYTHONUNBUFFERED=1 python3 ./tools/endpoint.py >> endpoint.log 2>&1 &"
+kill_endpointcmd = "pkill -f './tools/endpoint.py'"
 
 
 # Global variables for dropdown options
@@ -201,7 +202,7 @@ def update_config_file(model_names):
 def start_openai_proxy():
     try:
         # Specify the command to start the OpenAI proxy endpoint
-        openai_endpointcmd = "PYTHONUNBUFFERED=1 python3 ./endpointopenai.py >> endpoint_openai.log 2>&1 &"
+        openai_endpointcmd = "PYTHONUNBUFFERED=1 python3 ./tools/endpointopenai.py >> endpoint_openai.log 2>&1 &"
 
         # Start the OpenAI proxy endpoint
         subprocess.Popen(openai_endpointcmd, shell=True)
@@ -239,7 +240,7 @@ def kill_endpoint():
     try:
         # Specify the commands to kill both processes
         kill_endpointcmd = "pkill -f './endpoint.py'"
-        kill_openai_endpointcmd = "pkill -f './endpointopenai.py'"
+        kill_openai_endpointcmd = "pkill -f './tools/endpointopenai.py'"
 
         # Execute the kill commands for both processes
         os.system(kill_endpointcmd)
