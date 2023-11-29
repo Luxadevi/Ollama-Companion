@@ -87,4 +87,4 @@ Contributions to Ollama Companion are highly appreciated. Please refer to our co
 
 ## License
 
-Ollama Companion is available under [LICENSE]. It is free for use, modification, and distribution under the terms of the license.
+Ollama Companion is available under It is free for use, modification, and distribution under the terms of the license.
