@@ -5,13 +5,17 @@ from flask_cloudflared import run_with_cloudflared
 import gradio as gr
 from threading import Thread
 import sys
+import os
+import logging
 
 app = Flask(__name__)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def proxy(path):
-    url = f'http://127.0.0.1:11434/{path}'
+    # Set the base URL to 127.0.0.1 and port 11434
+    api_url = 'http://127.0.0.1:11434'
+    url = f'{api_url}/{path}'
     resp = requests.request(
         method=request.method,
         url=url,
@@ -24,12 +28,34 @@ def proxy(path):
     headers = [(name, value) for (name, value) in resp.raw.headers.items()
                if name.lower() not in excluded_headers]
     return Response(resp.content, resp.status_code, headers)
+
+@app.route('/openai', defaults={'path': ''})
+@app.route('/openai/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+def openai_proxy(path):
+    try:
+        # Define the new URL for the openai proxy
+        new_url = f'http://127.0.0.1:8000/{path}'
+
+        # Log the URL for debugging
+        logging.info(f"Proxying to URL: {new_url}")
+
+        resp = requests.request(
+            method=request.method,
+            url=new_url,
+            headers={key: value for (key, value) in request.headers if key != 'Host'},
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False)
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items()
+                   if name.lower() not in excluded_headers]
+        return Response(resp.content, resp.status_code, headers)
+    except Exception as e:
+        logging.error(f"Error in openai_proxy: {e}")
+        return Response(f"Error: {e}", status=500)
+
 run_with_cloudflared(app)
-
-
 
 if __name__ == '__main__':
     app.run()
-time.sleep(10)
-
-sys.stdout.flush()
