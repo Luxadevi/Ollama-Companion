@@ -16,29 +16,6 @@ install_ollama() {
     fi
 }
 
-# Function to check Ollama serve port
-check_ollama_port() {
-    OLLAMA_PORT=$(lsof -i -P -n | grep LISTEN | grep ollama | awk '{print $9}' | cut -d: -f2)
-    if [ "$OLLAMA_PORT" == "11434" ]; then
-        echo "Ollama serve running on default port, no further action needed."
-    else
-        echo "Ollama serve is running on a non-default port: $OLLAMA_PORT"
-        read -p "Do you want to change the port of the proxy and companion to reflect this? (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            change_port_references "$OLLAMA_PORT"
-        fi
-    fi
-}
-
-# Function to change port references in Python scripts
-change_port_references() {
-    local new_port=$1
-    echo "Changing port references to $new_port..."
-    sed -i "s/11434/$new_port/g" tools/ollama_companion.py tools/endpoint.py tools/endpointopenai.py
-
-}
-
 # Function to create and enable a systemd service
 setup_systemd_service() {
     SERVICE_FILE="/etc/systemd/system/ollama_companion.service"
@@ -63,19 +40,48 @@ EOF
     sudo systemctl enable ollama_companion.service
     sudo systemctl start ollama_companion.service
     echo "Ollama Companion service is now enabled and started."
+
+    # Enable automatic start on boot
+    sudo systemctl enable ollama_companion.service
+}
+
+# Function to ask the user if they want to install Ollama on this host or a different address
+ask_install_location() {
+    read -p "Do you want to install Ollama on this host (y/n)? " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        install_ollama
+    else
+        echo "You have chosen not to install Ollama on this host. Please install it manually on your desired address."
+    fi
+}
+
+# Function to ask the user if they want to set up Ollama Companion as a systemd service
+ask_setup_systemd_service() {
+    read -p "Do you want to set up Ollama Companion as a systemd service (recommended)? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        setup_systemd_service
+    fi
 }
 
 # Main script execution
 install_python_packages
-install_ollama
-check_ollama_port
 
-echo "Installation successful! The Ollama companion will now open."
-echo "Next time, you can start the companion by running: python3 ./ollama_companion.py"
+# Ask the user where they want to install Ollama
+ask_install_location
 
-# Prompt user to set up as a Linux service
-read -p "Do you want to set up Ollama Companion as a Linux service? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    setup_systemd_service
+echo "Installation successful! The Ollama Companion will now open."
+
+# Ask the user if they want to set up Ollama Companion as a systemd service
+ask_setup_systemd_service
+
+# Check if Ollama Companion was set up as a system process
+if [ -f /etc/systemd/system/ollama_companion.service ]; then
+    echo "Ollama Companion has been set up as a system process and will start automatically on boot."
+else
+    echo "Ollama Companion started. If you didn't make this a system process, start the app next time with 'python3 main.py' in this directory."
 fi
+
+# Start python3 main.py once the script is done
+python3 main.py

@@ -8,13 +8,18 @@ import sys
 import os
 import logging
 
+# Add the parent directory (project) to the sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
+
+# Import shared module from the "modules" directory
+from modules.shared import shared
+
+api_url = shared['api_endpoint']['url']
 app = Flask(__name__)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def proxy(path):
-    # Set the base URL to 127.0.0.1 and port 11434
-    api_url = 'http://127.0.0.1:11434'
     url = f'{api_url}/{path}'
     resp = requests.request(
         method=request.method,

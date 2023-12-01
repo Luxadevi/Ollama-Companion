@@ -4,3 +4,4 @@ flask
 flask-cloudflared
 httpx
 litellm
+huggingface_hub
