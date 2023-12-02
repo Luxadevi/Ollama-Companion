@@ -48,7 +48,7 @@ def download_files(file_links_dict, model_name):
         try:
             subprocess.run([
                 "aria2c", file_url,
-                "--max-connection-per-server=16", "--split=12", "--min-split-size=5M",
+                "--max-connection-per-server=16", "--split=12", "--min-split-size=5M","--allow-overwrite=true",
                 "-d", download_path, "-o", filename,  # Specify output filename
                 "--continue=true"  # To resume download if it stops
             ], check=True)

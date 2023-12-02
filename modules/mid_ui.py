@@ -1,5 +1,6 @@
 import gradio as gr
 import os
+from .shared import shared  # Import the shared dictionary
 
 def create_mid_ui():
     models_dir = "llama.cpp/models/"
@@ -17,6 +18,7 @@ def create_mid_ui():
                         gguf_files.append(f"{model_folder}/High-Precision-Quantization/{file}")
     else:
         gguf_files = ["Models directory not found"]
+
 
     with gr.Blocks() as mid_ui:
         gr.Markdown("### Mid Level Interface")
