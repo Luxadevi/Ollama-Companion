@@ -3,7 +3,7 @@
 # Function to install Python packages
 install_python_packages() {
     echo "Installing Python packages..."
-    pip install -U gradio requests flask flask-cloudflared httpx litellm PyYAML asyncio
+    pip install -U gradio requests flask flask-cloudflared httpx litellm PyYAML asyncio huggingface_hub
 }
 
 # Function to check and install Ollama

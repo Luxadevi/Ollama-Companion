@@ -6,7 +6,7 @@ from modules.api_config import create_api_config_interface
 from modules.litellm_proxy import create_litellm_proxy_interface
 from modules.initialize_files import initialize_files  # Import the initialization function
 from modules.public_endpoint import create_public_endpoint_interface
-from modules.huggingface_repo import create_hf_repo_folder_upload_interface
+from modules.huggingface_repo import create_hf_repo_interface  # Updated import
 from modules.token_encryption import create_token_encryption_interface  # Assuming this is your token encryption interface
 
 def main():
@@ -20,7 +20,8 @@ def main():
     litellm_proxy_interface = create_litellm_proxy_interface()
     public_endpoint_interface = create_public_endpoint_interface()
     token_encryption_interface = create_token_encryption_interface()
-    hf_repo_interface = create_hf_repo_folder_upload_interface()
+    hf_repo_interface = create_hf_repo_interface()
+
     # Tabbed Interface
     gr.TabbedInterface(
         [model_info_interface, model_file_creator_interface, api_config_interface, 

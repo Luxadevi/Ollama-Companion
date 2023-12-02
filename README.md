@@ -24,3 +24,9 @@ Add you tokken in the encrypter and save this somewhere you need this to create 
 # HF repo creater and uploader
 
 Define a folder and upload this as a repo to HF
+
+
+
+### TODOD MINDMAP
+
+* add different dependency for aria2c
