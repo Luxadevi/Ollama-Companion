@@ -45,4 +45,4 @@ curl http://localhost:11434/api/generate -d '{
 }'
 
 
-  ./llama.cpp/quantize ./models/7B/ggml-model-f16.gguf ./models/7B/ggml-model-q4_0.gguf q4_0
+  ./llama.cpp/quantize ./models/{modelname}/High-Precision-Quantization/Yi-6B-f16.gguf ./models/7B/ggml-model-q4_0.gguf q4_0
