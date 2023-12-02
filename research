@@ -4,9 +4,9 @@ python3 convert.py models/7B/
 
   # [Optional] for models using BPE tokenizers
   python convert.py models/7B/ --vocabtype bpe
-python llama.cpp/convert.py textareainput \
-  --outfile variable \
-  --outtype q8_0 f32 f16 
+python3 llama.cpp/convert-hf-to-gguf.py /home/bordispam/Ollama-Companion/llama.cpp/models/Airoboros-c34b-2.2.1-Mistral \
+  --outfile lekker.gguf \
+  --outtype q8_0
 
   ./quantize --help ./models/7B/ggml-model-f16.gguf ./models/7B/ggml-model-q4_0.gguf q4_0 
 Q4_0
@@ -28,3 +28,18 @@ Q6_K
 Q8_0
 F16
 F32
+
+
+curl http://localhost:11434/api/generate -d '{
+  "model": "next",
+  "prompt": "Tell me more about evolution?",
+  "format": "json",
+  "stream": false
+}'
+
+curl http://localhost:11434/api/generate -d '{
+  "model": "next",
+  "prompt": "What color is the sky at different times of the day? Respond using JSON",
+  "format": "json",
+  "stream": false
+}'
