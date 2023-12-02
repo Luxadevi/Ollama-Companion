@@ -1,7 +1,7 @@
 import gradio as gr
-from high_ui import create_high_ui
-from mid_ui import create_mid_ui
-from low_ui import create_low_ui
+from modules.high_ui import create_high_ui
+from modules.mid_ui import create_mid_ui
+from modules.low_ui import create_low_ui
 
 def create_quant_ui():
     high_ui = create_high_ui()
@@ -11,9 +11,9 @@ def create_quant_ui():
     with gr.Blocks() as quant_ui:
         with gr.Tabs():
             with gr.Tab("High"):
-                high_ui()
+                high_ui  # use high_ui directly
             with gr.Tab("Mid"):
-                mid_ui()
+                mid_ui  # use mid_ui directly
             with gr.Tab("Low"):
-                low_ui()
+                low_ui  # use low_ui directly
     return quant_ui
