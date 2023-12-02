@@ -22,7 +22,7 @@ log_file_path = os.path.join(log_dir, 'litellmlog')
 config_file_path = os.path.join(config_dir, 'config.yaml')
 
 # LiteLLM startup command
-litellm_proxycmd = f"PYTHONUNBUFFERED=1 litellm --config {config_file_path} > {log_file_path} 2>&1 &"
+litellm_proxycmd = f"PYTHONUNBUFFERED=1 litellm --config {config_file_path} >> {log_file_path} 2>&1 &"
 
 def start_litellm_proxy_and_read_log():
     try:

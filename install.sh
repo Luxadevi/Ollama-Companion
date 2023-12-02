@@ -1,5 +1,6 @@
 #!/bin/bash
-
+sudo apt-get update
+sudo apt install pyhton3-pip -y
 # Function to install Python packages
 install_python_packages() {
     echo "Installing Python packages..."
