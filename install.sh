@@ -71,6 +71,17 @@ install_python_packages
 # Ask the user where they want to install Ollama
 ask_install_location
 
+# Add the provided code to the script
+echo "Adding systemd configuration for Ollama..."
+mkdir -p /etc/systemd/system/ollama.service.d
+echo '[Service]' >>/etc/systemd/system/ollama.service.d/environment.conf
+echo 'Environment="OLLAMA_HOST=0.0.0.0:11434"' >>/etc/systemd/system/ollama.service.d/environment.conf
+
+# Reload systemd and restart Ollama
+echo "Reloading systemd and restarting Ollama..."
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+
 echo "Installation successful! The Ollama Companion will now open."
 
 # Ask the user if they want to set up Ollama Companion as a systemd service
