@@ -2,6 +2,8 @@ import gradio as gr
 import os
 import subprocess
 import threading
+import asyncio
+
 
 def run_command(model_folder, out_type):
     base_dir = "llama.cpp/models"
@@ -43,7 +45,7 @@ def create_high_ui():
         gr.Markdown("### High Level Interface")
         with gr.Row():
             model_folder_input = gr.Dropdown(label="Select a Model Folder", choices=model_folders)
-            out_type_input = gr.Radio(label="Select Output Type", choices=["Q8_0", "f16", "f32"], value="Q8_0")
+            out_type_input = gr.Radio(label="Select Output Type", choices=["q8_0", "f16", "f32"], value="q8_0")
             run_button = gr.Button("Run Command")
         status_output = gr.Textbox(label="Status")
         run_button.click(trigger_command, inputs=[model_folder_input, out_type_input], outputs=[status_output])
