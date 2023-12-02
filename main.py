@@ -28,7 +28,7 @@ def main():
          litellm_proxy_interface, public_endpoint_interface, hf_repo_interface, token_encryption_interface],
         ["Model Info", "ModelFile Templater", "API Configuration", 
          "LiteLLM-Proxy", "Public Endpoint", "Hugging Face Repo", "Token Encryption"]
-    ).launch(server_name="0.0.0.0", server_port=7860)
+    ).launch(server_name="0.0.0.0", server_port=7860, share=True)
 
 if __name__ == "__main__":
     main()

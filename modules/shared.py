@@ -1,5 +1,5 @@
 shared = {
-    'api_endpoint': {"url": "http://192.168.1.130:11434"},  # Updated API URL
+    'api_endpoint': {"url": "http://127.0.0.1:11434"},  # Updated API URL
     'gradio': {},
     'parameters': {
         'mirostat': [0, [0, 1, 2]],  # Dropdown
