@@ -8,7 +8,7 @@ python3 llama.cpp/convert-hf-to-gguf.py /home/bordispam/Ollama-Companion/llama.c
   --outfile lekker.gguf \
   --outtype q8_0
 
-  ./quantize --help ./models/7B/ggml-model-f16.gguf ./models/7B/ggml-model-q4_0.gguf q4_0 
+  ./quantize ./models/7B/ggml-model-f16.gguf ./models/7B/ggml-model-q4_0.gguf q4_0 
 Q4_0
 Q4_1
 Q5_0

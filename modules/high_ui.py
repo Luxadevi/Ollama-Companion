@@ -57,7 +57,7 @@ def create_high_ui():
         model_folders = ["Directory not found"]
 
     with gr.Blocks() as high_ui:
-        gr.Markdown("### High Level Interface")
+        gr.Markdown("### High Precision Quantization")
         with gr.Row():
             model_folder_input = gr.Dropdown(label="Select a Model Folder", choices=model_folders)
             q8_0_input = gr.Checkbox(label="Q8_0")
