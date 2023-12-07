@@ -8,6 +8,7 @@ import sys
 import os
 import logging
 
+
 # Add the parent directory (project) to the sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 
@@ -28,6 +29,8 @@ def proxy(path):
         data=request.get_data(),
         cookies=request.cookies,
         allow_redirects=False)
+    print(f"request made on {api_url}/{path}")
+
 
     excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
     headers = [(name, value) for (name, value) in resp.raw.headers.items()
@@ -40,9 +43,10 @@ def openai_proxy(path):
     try:
         # Define the new URL for the openai proxy
         new_url = f'http://127.0.0.1:8000/{path}'
-
+        print(f"dit is de link finaly {new_url}")
         # Log the URL for debugging
         logging.info(f"Proxying to URL: {new_url}")
+
 
         resp = requests.request(
             method=request.method,
@@ -50,7 +54,7 @@ def openai_proxy(path):
             headers={key: value for (key, value) in request.headers if key != 'Host'},
             data=request.get_data(),
             cookies=request.cookies,
-            allow_redirects=False)
+            allow_redirects=True)
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(name, value) for (name, value) in resp.raw.headers.items()
@@ -63,4 +67,4 @@ def openai_proxy(path):
 run_with_cloudflared(app)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
