@@ -22,7 +22,7 @@ log_file_path = os.path.join(log_dir, 'litellmlog')
 config_file_path = os.path.join(config_dir, 'config.yaml')
 
 # LiteLLM startup command
-litellm_proxycmd = f"PYTHONUNBUFFERED=1 litellm --config {config_file_path} >> {log_file_path} 2>&1 &"
+litellm_proxycmd = f"PYTHONUNBUFFERED=1 litellm --config {config_file_path} --debug >> {log_file_path} 2>&1 &"
 
 def start_litellm_proxy_and_read_log():
     try:
@@ -131,6 +131,9 @@ def update_config_file(model_names):
     existing_models = {model['model_name'] for model in config['model_list']}
     needs_update = False
 
+    # Extract litellm_settings from the existing config
+    litellm_settings = config.pop('litellm_settings', {})
+
     # Update the 'model_list' with new models
     for model_name in model_names:
         full_model_name = f"ollama/{model_name}"
@@ -147,13 +150,17 @@ def update_config_file(model_names):
             existing_models.add(full_model_name)
             needs_update = True
 
-    # Write the updated content back to the YAML file if necessary
+    # Append litellm_settings to the end of the new models
+    for entry in config['model_list']:
+        if 'litellm_params' in entry:
+            entry['litellm_params'].update(litellm_settings)
+
+    # Write the updated configuration back to the file
+    with open(config_file_path, "w") as file:
+        yaml.dump(config, file, default_flow_style=False)
+
     if needs_update:
-        with open(config_file_path, "w") as file:
-            yaml.dump(config, file, default_flow_style=False, sort_keys=False)
-        print("Config file updated.")
-    else:
-        print("No updates made to the config file.")
+        print("Config file updated successfully.")
 
 def create_litellm_proxy_interface():
     with gr.Blocks() as block:

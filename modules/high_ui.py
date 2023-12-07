@@ -28,7 +28,7 @@ def run_command(model_folder, out_type):
 
     # Construct the command as a list
     command = [
-        "python", "llama.cpp/convert.py", os.path.join(base_dir, model_folder),
+        "python3", "llama.cpp/convert.py", os.path.join(base_dir, model_folder),
         "--outfile", os.path.join(target_dir, output_file),
         "--outtype", out_type
     ]

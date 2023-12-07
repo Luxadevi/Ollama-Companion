@@ -2,6 +2,7 @@ import gradio as gr
 import threading
 import os
 import time
+import subprocess
 
 
 # Get the directory of the current module
@@ -46,6 +47,10 @@ def kill_endpoint():
         if flask_thread and flask_thread.is_alive():
             flask_thread.join(1)  # You may adjust the timeout
             flask_thread = None
+
+        # Kill processes using port 5000
+        subprocess.run(["lsof", "-ti", ":5000", "|", "xargs", "kill", "-9"], shell=True)
+
         return "Endpoint killed successfully."
     except Exception as e:
         return f"Error: {str(e)}"
