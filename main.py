@@ -9,6 +9,7 @@ from modules.public_endpoint import create_public_endpoint_interface
 from modules.huggingface_repo import create_hf_repo_interface  # Updated import
 from modules.token_encryption import create_token_encryption_interface  # Assuming this is your token encryption interface
 from modules.quant_ui import create_quant_ui
+from modules.chat import create_chat_ui
 def main():
     # Initialization (this will also handle key generation)
     initialize_files()
@@ -22,16 +23,27 @@ def main():
     token_encryption_interface = create_token_encryption_interface()
     hf_repo_interface = create_hf_repo_interface()
     quant_ui_interface = create_quant_ui()  # Combined Quant UI interface
+    chat_ui_interface = create_chat_ui()
 
     # Tabbed Interface
-    gr.TabbedInterface(
+    interface = gr.TabbedInterface(
         [model_info_interface, model_file_creator_interface, api_config_interface, 
          litellm_proxy_interface, public_endpoint_interface, hf_repo_interface, token_encryption_interface,
-         quant_ui_interface],  # Add the combined Quant UI interface
+         quant_ui_interface, chat_ui_interface],
         ["Model Info", "ModelFile Templater", "API Configuration", 
          "LiteLLM-Proxy", "Public Endpoint", "Hugging Face Repo", "Token Encryption",
-         "Quanting"]  # Tab labels
-    ).launch(server_name="0.0.0.0", server_port=7860, share=True)
+         "Quanting", "Chat"]
+    )
+
+    # Enable Queueing
+    interface.queue()
+
+    # Launch the interface
+    interface.launch(
+        server_name="0.0.0.0", 
+        server_port=7860, 
+        share=True
+    )
 
 if __name__ == "__main__":
     main()
