@@ -5,8 +5,7 @@ flask-cloudflared
 httpx
 litellm
 huggingface_hub
-gradio requests 
 asyncio 
-huggingface_hub
 Pyyaml
 httpx
+APScheduler
