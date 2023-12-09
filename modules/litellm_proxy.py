@@ -143,7 +143,8 @@ def update_config_file(model_names):
                 'litellm_params': {
                     'model': full_model_name,
                     'api_base': shared['api_endpoint']['url'],  # Use API URL from shared dictionary
-                    'json': True
+                    'json': True,
+                    'drop_params': True
                 }
             }
             config['model_list'].append(entry)
