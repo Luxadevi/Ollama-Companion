@@ -1,4 +1,4 @@
-# main.py
+# kagglemain.py
 import gradio as gr
 from modules.model_info import create_model_info_interface
 from modules.modelfile_creator import create_modelfile_creator_interface
@@ -41,8 +41,8 @@ def main():
     # Launch the interface
     interface.launch(
         server_name="0.0.0.0", 
-        server_port=7860
-        
+        server_port=7860, 
+        share=False
     )
 
 if __name__ == "__main__":
