@@ -9,3 +9,4 @@ asyncio
 Pyyaml
 httpx
 APScheduler
+cryptography
