@@ -1,0 +1,293 @@
+hellosINFO:     Started server process [109489]
+INFO:     Waiting for application startup.
+
+[1;37m#------------------------------------------------------------#[0m
+[1;37m#                                                            #[0m
+[1;37m#               'A feature I really want is...'               #[0m
+[1;37m#        https://github.com/BerriAI/litellm/issues/new        #[0m
+[1;37m#                                                            #[0m
+[1;37m#------------------------------------------------------------#[0m
+
+ Thank you for using LiteLLM! - Krrish & Ishaan
+
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+
+
+Loaded config YAML:
+null
+ERROR:    Traceback (most recent call last):
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/starlette/routing.py", line 677, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/starlette/routing.py", line 566, in __aenter__
+    await self._router.startup()
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/starlette/routing.py", line 654, in startup
+    await handler()
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/litellm/proxy/proxy_server.py", line 617, in startup_event
+    initialize(**worker_config)
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/litellm/proxy/proxy_server.py", line 504, in initialize
+    llm_router, llm_model_list, general_settings = load_router_config(router=llm_router, config_file_path=config)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/luxa/miniconda3/lib/python3.11/site-packages/litellm/proxy/proxy_server.py", line 345, in load_router_config
+    environment_variables = config.get('environment_variables', None)
+                            ^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [112901]
+INFO:     Waiting for application startup.
+
+[1;37m#------------------------------------------------------------#[0m
+[1;37m#                                                            #[0m
+[1;37m#         'The worst thing about this product is...'          #[0m
+[1;37m#        https://github.com/BerriAI/litellm/issues/new        #[0m
+[1;37m#                                                            #[0m
+[1;37m#------------------------------------------------------------#[0m
+
+ Thank you for using LiteLLM! - Krrish & Ishaan
+
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+
+
+Loaded config YAML:
+{
+  "model_list": [
+    {
+      "model_name": "ollama/dummyentry",
+      "litellm_params": {
+        "model": "ollama/dummyentry",
+        "api_base": "http://127.0.0.1:11434",
+        "json": true
+      }
+    }
+  ]
+}
+[32mLiteLLM: Proxy initialized with Config, Set models:[0m
+[32m    ollama/dummyentry[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+
+[1;34mLiteLLM: Test your local proxy with: "litellm --test" This runs an openai.ChatCompletion request to your proxy [In a new terminal tab][0m
+
+[1;34mLiteLLM: Curl Command Test for your local proxy
+ 
+    curl --location 'http://0.0.0.0:8000/chat/completions' \
+    --header 'Content-Type: application/json' \
+    --data ' {
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {
+        "role": "user",
+        "content": "what llm are you"
+        }
+    ]
+    }'
+    
+
+     [0m
+
+[1;34mDocs: https://docs.litellm.ai/docs/simple_proxy[0m
+
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [112901]
+INFO:     Started server process [127650]
+INFO:     Waiting for application startup.
+
+[1;37m#------------------------------------------------------------#[0m
+[1;37m#                                                            #[0m
+[1;37m#         'The worst thing about this product is...'          #[0m
+[1;37m#        https://github.com/BerriAI/litellm/issues/new        #[0m
+[1;37m#                                                            #[0m
+[1;37m#------------------------------------------------------------#[0m
+
+ Thank you for using LiteLLM! - Krrish & Ishaan
+
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+
+
+Loaded config YAML:
+{
+  "model_list": [
+    {
+      "litellm_params": {
+        "api_base": "http://127.0.0.1:11434",
+        "json": true,
+        "model": "ollama/dummyentry"
+      },
+      "model_name": "ollama/dummyentry"
+    },
+    {
+      "litellm_params": {
+        "api_base": "https://status-gg-spaces-mm.trycloudflare.com",
+        "drop_params": true,
+        "json": true,
+        "model": "ollama/nexygen:latest"
+      },
+      "model_name": "ollama/nexygen:latest"
+    },
+    {
+      "litellm_params": {
+        "api_base": "https://status-gg-spaces-mm.trycloudflare.com",
+        "drop_params": true,
+        "json": true,
+        "model": "ollama/vicuna:7b"
+      },
+      "model_name": "ollama/vicuna:7b"
+    }
+  ]
+}
+[32mLiteLLM: Proxy initialized with Config, Set models:[0m
+[32m    ollama/dummyentry[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+[32m    ollama/nexygen:latest[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+[32m    ollama/vicuna:7b[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+
+[1;34mLiteLLM: Test your local proxy with: "litellm --test" This runs an openai.ChatCompletion request to your proxy [In a new terminal tab][0m
+
+[1;34mLiteLLM: Curl Command Test for your local proxy
+ 
+    curl --location 'http://0.0.0.0:8000/chat/completions' \
+    --header 'Content-Type: application/json' \
+    --data ' {
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {
+        "role": "user",
+        "content": "what llm are you"
+        }
+    ]
+    }'
+    
+
+     [0m
+
+[1;34mDocs: https://docs.litellm.ai/docs/simple_proxy[0m
+
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [127650]
+INFO:     Started server process [129853]
+INFO:     Waiting for application startup.
+
+[1;37m#------------------------------------------------------------#[0m
+[1;37m#                                                            #[0m
+[1;37m#       'This feature doesn't meet my needs because...'       #[0m
+[1;37m#        https://github.com/BerriAI/litellm/issues/new        #[0m
+[1;37m#                                                            #[0m
+[1;37m#------------------------------------------------------------#[0m
+
+ Thank you for using LiteLLM! - Krrish & Ishaan
+
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+
+
+Loaded config YAML:
+{
+  "model_list": [
+    {
+      "litellm_params": {
+        "api_base": "http://127.0.0.1:11434",
+        "json": true,
+        "model": "ollama/dummyentry"
+      },
+      "model_name": "ollama/dummyentry"
+    },
+    {
+      "litellm_params": {
+        "api_base": "https://status-gg-spaces-mm.trycloudflare.com",
+        "drop_params": true,
+        "json": true,
+        "model": "ollama/nexygen:latest"
+      },
+      "model_name": "ollama/nexygen:latest"
+    },
+    {
+      "litellm_params": {
+        "api_base": "https://status-gg-spaces-mm.trycloudflare.com",
+        "drop_params": true,
+        "json": true,
+        "model": "ollama/vicuna:7b"
+      },
+      "model_name": "ollama/vicuna:7b"
+    }
+  ]
+}
+[32mLiteLLM: Proxy initialized with Config, Set models:[0m
+[32m    ollama/dummyentry[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+[32m    ollama/nexygen:latest[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+[32m    ollama/vicuna:7b[0m
+
+            LiteLLM Warning: proxy started with `ollama` model
+`ollama serve` failed with Exception[Errno 2] No such file or directory: 'ollama'. 
+Ensure you run `ollama serve`
+        
+
+[1;34mLiteLLM: Test your local proxy with: "litellm --test" This runs an openai.ChatCompletion request to your proxy [In a new terminal tab][0m
+
+[1;34mLiteLLM: Curl Command Test for your local proxy
+ 
+    curl --location 'http://0.0.0.0:8000/chat/completions' \
+    --header 'Content-Type: application/json' \
+    --data ' {
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {
+        "role": "user",
+        "content": "what llm are you"
+        }
+    ]
+    }'
+    
+
+     [0m
+
+[1;34mDocs: https://docs.litellm.ai/docs/simple_proxy[0m
+
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33806 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [129853]
