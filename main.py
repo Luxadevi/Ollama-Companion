@@ -1,50 +1,48 @@
-# main.py
-import gradio as gr
-from modules.model_info import create_model_info_interface
-from modules.modelfile_creator import create_modelfile_creator_interface
-from modules.api_config import create_api_config_interface
-from modules.litellm_proxy import create_litellm_proxy_interface
-from modules.initialize_files import initialize_files  # Import the initialization function
-from modules.public_endpoint import create_public_endpoint_interface
-from modules.huggingface_repo import create_hf_repo_interface  # Updated import
-from modules.token_encryption import create_token_encryption_interface  # Assuming this is your token encryption interface
-from modules.quant_ui import create_quant_ui
-from modules.chat import create_chat_ui
+import streamlit as st
+from model_selector import show_model_selector
+from modelfile_templater import show_model_dropdowns, show_parameter_sliders, show_model_name_input, display_curl_command
+from ollama_api_configurator import show_ollama_api_configurator
+from litellm_proxy import show_litellm_proxy_page
+from public_endpoint import show_public_endpoint_page
+from downloading_models import show_downloading_models_page
+from High_Precision_Quantization import show_high_precision_quantization_page
+from Medium_Precision_Quantization import show_medium_precision_quantization_page
+from model_management import show_model_management_page  
+from token_encrypt import show_token_encrypt_page
+import key_generation
+
+
 def main():
-    # Initialization (this will also handle key generation)
-    initialize_files()
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio("Choose a Page", ["Model Selector", "Modelfile Templater", "Ollama-API", 
+                                              "LiteLLM Proxy", "Public Endpoint", "Downloading Models",
+                                              "High Precision Quantization", "Medium Precision Quantization",
+                                              "Model Management", "Token-encrypt"])
 
-    # Creating interfaces from modules
-    model_info_interface = create_model_info_interface()
-    model_file_creator_interface = create_modelfile_creator_interface()
-    api_config_interface = create_api_config_interface()
-    litellm_proxy_interface = create_litellm_proxy_interface()
-    public_endpoint_interface = create_public_endpoint_interface()
-    token_encryption_interface = create_token_encryption_interface()
-    hf_repo_interface = create_hf_repo_interface()
-    quant_ui_interface = create_quant_ui()  # Combined Quant UI interface
-    chat_ui_interface = create_chat_ui()
+    if page == "Model Selector":
+        show_model_selector()
+    elif page == "Modelfile Templater":
+        show_model_name_input()
+        show_model_dropdowns()
+        show_parameter_sliders()
+        display_curl_command()
+    elif page == "Ollama-API":
+        show_ollama_api_configurator()
+    elif page == "LiteLLM Proxy":
+        show_litellm_proxy_page()
+    elif page == "Public Endpoint":
+        show_public_endpoint_page()
+    elif page == "Downloading Models":
+        show_downloading_models_page()
+    elif page == "High Precision Quantization":
+        show_high_precision_quantization_page()
+    elif page == "Medium Precision Quantization":
+        show_medium_precision_quantization_page()
+    elif page == "Model Management": 
+        show_model_management_page()
+    elif page == "Token-encrypt":
+        show_token_encrypt_page()
 
-    # Tabbed Interface
-    interface = gr.TabbedInterface(
-        [model_info_interface, model_file_creator_interface, api_config_interface, 
-         litellm_proxy_interface, public_endpoint_interface, hf_repo_interface, token_encryption_interface,
-         quant_ui_interface, chat_ui_interface],
-        ["Model Info", "ModelFile Templater", "API Configuration", 
-         "LiteLLM-Proxy", "Public Endpoint", "Hugging Face Repo", "Token Encryption",
-         "Quanting", "Chat"]
-    )
-
-    # Enable Queueing
-    interface.queue()
-
-    # Launch the interface
-    interface.launch(
-        server_name="0.0.0.0", 
-        server_port=7860, 
-        share=True
-    )
 
 if __name__ == "__main__":
     main()
-    

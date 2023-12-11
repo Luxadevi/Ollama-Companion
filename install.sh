@@ -1,99 +1,174 @@
 #!/bin/bash
-sudo apt-get update
-sudo apt install pyhton3-pip aria2 -y
-# Function to install Python packages
-install_python_packages() {
-    echo "Installing Python packages..."
-    pip install -U gradio requests flask flask-cloudflared httpx litellm PyYAML asyncio huggingface_hub
+
+# Function to install and configure Docker
+install_and_configure_docker() {
+    case "$1" in
+        debian | redhat | arch)
+            # Install Docker
+            sudo apt-get install -y docker.io
+
+            # Configure Docker
+            sudo groupadd docker
+            sudo gpasswd -a $USER docker
+            sudo usermod -aG docker $USER
+            sudo chown root:docker /var/run/docker.sock
+            sudo chown -R root:docker /var/run/docker
+            ;;
+        macos)
+            # Assumes Homebrew is installed
+            brew install docker
+            ;;
+        *)
+            echo "Docker installation not supported on this OS"
+            exit 1
+            ;;
+    esac
 }
 
-# Function to check and install Ollama
-install_ollama() {
-    if id "ollama" &>/dev/null || getent group "ollama" &>/dev/null; then
-        echo "Ollama user or group found, assuming Ollama is installed."
-    else
-        echo "Installing Ollama..."
-        curl -s https://ollama.ai/install.sh | bash
-    fi
+# Function to install packages
+install_packages() {
+    # Update package lists
+    case "$1" in
+        debian)
+            sudo apt-get update
+            sudo apt-get install -y python3 pip gcc make aria2 build-essential pciutils
+            ;;
+        redhat)
+            sudo yum update
+            sudo yum install -y python3 python3-pip gcc make aria2 pciutils
+            ;;
+        arch)
+            sudo pacman -Syu
+            sudo pacman -S --noconfirm python3 python-pip gcc make aria2 base-devel pciutils
+            ;;
+        macos)
+            # Assumes Homebrew is installed
+            brew update
+            brew install python3 pip gcc make aria2 cmake pciutils
+            ;;
+        *)
+            echo "Unsupported OS"
+            exit 1
+            ;;
+    esac
 }
 
-# Function to create and enable a systemd service
-setup_systemd_service() {
-    SERVICE_FILE="/etc/systemd/system/ollama_companion.service"
-
-    echo "Creating systemd service at $SERVICE_FILE"
-    cat << EOF | sudo tee $SERVICE_FILE
-[Unit]
-Description=Ollama Companion Service
-After=network.target
-
-[Service]
-User=$USER
-ExecStart=/usr/bin/python3 /path/to/ollama_companion.py
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-    echo "Reloading systemd daemon and enabling service..."
-    sudo systemctl daemon-reload
-    sudo systemctl enable ollama_companion.service
-    sudo systemctl start ollama_companion.service
-    echo "Ollama Companion service is now enabled and started."
-
-    # Enable automatic start on boot
-    sudo systemctl enable ollama_companion.service
-}
-
-# Function to ask the user if they want to install Ollama on this host or a different address
-ask_install_location() {
-    read -p "Do you want to install Ollama on this host (y/n)? " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        install_ollama
-    else
-        echo "You have chosen not to install Ollama on this host. Please install it manually on your desired address."
-    fi
-}
-
-# Function to ask the user if they want to set up Ollama Companion as a systemd service
-ask_setup_systemd_service() {
-    read -p "Do you want to set up Ollama Companion as a systemd service (recommended)? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        setup_systemd_service
-    fi
-}
-
-# Main script execution
-install_python_packages
-
-# Ask the user where they want to install Ollama
-ask_install_location
-
-# Add the provided code to the script
-echo "Adding systemd configuration for Ollama..."
-mkdir -p /etc/systemd/system/ollama.service.d
-echo '[Service]' >>/etc/systemd/system/ollama.service.d/environment.conf
-echo 'Environment="OLLAMA_HOST=0.0.0.0:11434"' >>/etc/systemd/system/ollama.service.d/environment.conf
-
-# Reload systemd and restart Ollama
-echo "Reloading systemd and restarting Ollama..."
-sudo systemctl daemon-reload
-sudo systemctl restart ollama
-
-echo "Installation successful! The Ollama Companion will now open."
-
-# Ask the user if they want to set up Ollama Companion as a systemd service
-ask_setup_systemd_service
-
-# Check if Ollama Companion was set up as a system process
-if [ -f /etc/systemd/system/ollama_companion.service ]; then
-    echo "Ollama Companion has been set up as a system process and will start automatically on boot."
-else
-    echo "Ollama Companion started. If you didn't make this a system process, start the app next time with 'python3 main.py' in this directory."
+# Detect OS
+OS="unknown"
+if [ "$(uname)" == "Darwin" ]; then
+    OS="macos"
+elif [ -f /etc/debian_version ]; then
+    OS="debian"
+elif [ -f /etc/redhat-release ]; then
+    OS="redhat"
+elif [ -f /etc/arch-release ]; then
+    OS="arch"
+elif grep -q Microsoft /proc/version 2>/dev/null; then
+    echo "WOW, you ran a bash script inside Windows. Sadly, Windows is not supported with Ollama but you can still use this web UI to interface with an Ollama endpoint and use the quantize functions."
+    ./window_install.ps1
+    exit 0
 fi
 
-# Start python3 main.py once the script is done
-python3 main.py
+# Install packages
+install_packages $OS
+
+# Install and configure Docker
+install_and_configure_docker $OS
+
+# macOS specific installation for Ollama
+if [ "$OS" == "macos" ]; then
+    echo "Downloading Ollama for macOS..."
+    mkdir -p /MacOS
+    curl -o /MacOS/Ollama-darwin.zip https://ollama.ai/download/Ollama-darwin.zip
+    unzip /MacOS/Ollama-darwin.zip -d /MacOS/
+fi
+
+# Linux specific installation for Ollama
+if [ "$OS" == "debian" ] || [ "$OS" == "redhat" ] || [ "$OS" == "arch" ]; then
+    curl -O https://ollama.ai/install.sh
+    chmod +x install.sh
+    ./install.sh
+fi
+
+# Systemd setup for Linux
+if [ "$OS" != "macos" ] && systemctl | grep -q '\-\.mount'; then
+    echo "Adding systemd configuration for Ollama..."
+    mkdir -p /etc/systemd/system/ollama.service.d
+    echo '[Service]' >> /etc/systemd/system/ollama.service.d/environment.conf
+    echo 'Environment="OLLAMA_HOST=0.0.0.0:11434"' >> /etc/systemd/system/ollama.service.d/environment.conf
+
+    echo "Reloading systemd and restarting Ollama..."
+    sudo systemctl daemon-reload
+    sudo systemctl restart ollama
+fi
+
+# Launchd setup for macOS
+if [ "$OS" == "macos" ]; then
+    if command -v launchctl >/dev/null 2>&1; then
+        echo "Adding launchd configuration for Ollama..."
+
+        # Create a plist file for your service
+        cat <<EOF > /Library/LaunchDaemons/com.yourcompany.ollama.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.yourcompany.ollama</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/MacOS/Ollama.app/Contents/MacOS/Ollama</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>OLLAMA_HOST</key>
+        <string>0.0.0.0:11434</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
+EOF
+
+        # Load the launchd configuration
+        launchctl load /Library/LaunchDaemons/com.yourcompany.ollama.plist
+
+        echo "Starting Ollama..."
+    else
+        echo "launchctl not found. Unable to create launchd configuration."
+    fi
+fi
+
+else
+    # Check for Jupyter
+    if [ -n "$JUPYTERHUB_SERVICE_PREFIX" ]; then
+        echo "Jupyter notebook detected. Start Ollama from the web interface."
+    else
+        echo "No compatible service management found."
+    fi
+fi
+
+# Compile llama.cpp if exists
+if [ -d "./llama.cpp" ]; then
+    cd ./llama.cpp
+    if [ "$OS" == "macos" ]; then
+        cmake .
+    else
+        make
+    fi
+    cd ..
+    else ./llama.cpp make
+fi
+
+# Install Python requirements
+if [ -f requirements.txt ]; then
+    pip install -r requirements.txt
+fi
+
+echo "Installation complete."
+
+
+
+

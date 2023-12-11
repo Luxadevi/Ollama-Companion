@@ -13,7 +13,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 
 # Import shared module from the "modules" directory
-from modules.shared import shared
+from shared import shared
 
 api_url = shared['api_endpoint']['url']
 app = Flask(__name__)
