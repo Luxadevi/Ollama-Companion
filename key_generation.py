@@ -1,14 +1,15 @@
+## Key_generation.py
 from cryptography.fernet import Fernet
-import os
+from pathlib import Path
 
 def generate_key():
-    key_dir = os.path.join('.', '.key')
-    key_file_path = os.path.join(key_dir, 'encryption.key')
+    key_dir = Path('.') / '.key'
+    key_file_path = key_dir / 'encryption.key'
 
-    if not os.path.exists(key_file_path):
+    if not key_file_path.exists():
         key = Fernet.generate_key()
-        if not os.path.exists(key_dir):
-            os.makedirs(key_dir)
+        if not key_dir.exists():
+            key_dir.mkdir(parents=True, exist_ok=True)
         with open(key_file_path, 'wb') as key_file:
             key_file.write(key)
 
