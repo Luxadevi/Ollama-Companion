@@ -36,4 +36,4 @@ Get-ChildItem -Path ".\llama.cpp" -Recurse -Filter *.exe | ForEach-Object {
 
 
 # Final message
-Write-Host "Unfortunately, you chose to use Windows. This OS is not supported with Ollama but you can still use this program to interface with an Ollama endpoint or use the quantizing features."
+Write-Host "Thanks for installing the windows version. This OS is not fully supported with Ollama but you can still use this program to interface with an Ollama endpoint or use the quantizing features."
