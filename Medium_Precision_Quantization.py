@@ -15,7 +15,7 @@ def list_gguf_files(models_dir):
             hpq_folder = os.path.join(models_dir, model_folder, 'High-Precision-Quantization')
             if os.path.exists(hpq_folder) and os.path.isdir(hpq_folder):
                 for file in os.listdir(hpq_folder):
-                    if file.endswith('.gguf'):
+                    if file.lower().endswith('.gguf'):
                         gguf_files.append(os.path.join(model_folder, 'High-Precision-Quantization', file))
     return gguf_files
 
@@ -28,17 +28,27 @@ def schedule_quantize_task(command):
 
 def trigger_command(modelpath, options, use_docker):
     debug_output = ""
-    base_command = "./llama.cpp/quantize"
-    model_name_only, _, model_file = modelpath.partition('/High-Precision-Quantization/')
+    base_command = os.path.join(".", "llama.cpp", "quantize")
 
-    medium_precision_dir = f"./llama.cpp/models/{model_name_only}/Medium-Precision-Quantization"
+    from pathlib import Path
+
+    modelpath_path = Path(modelpath)
+
+    model_name_only, model_file = modelpath_path.parts[-3], modelpath_path.name
+
+    medium_precision_dir = os.path.join(".", "llama.cpp", "models", model_name_only, "Medium-Precision-Quantization")
     os.makedirs(medium_precision_dir, exist_ok=True)
+
 
     for option in options:
         if options[option]:
-            source_path = f"./llama.cpp/models/{model_name_only}/High-Precision-Quantization/{model_file}"
-            modified_model_file = model_file.replace('f16.gguf', '').replace('q8_0.gguf', '').replace('f32.gguf', '')
-            output_path = f"{medium_precision_dir}/{modified_model_file}-{option.upper()}.GGUF"
+
+            source_path = os.path.join(".", "llama.cpp", "models", model_name_only, "High-Precision-Quantization", model_file)
+            model_file_lower = model_file.lower()
+            modified_model_file = model_file_lower.replace('f16.gguf', '').replace('q8_0.gguf', '').replace('f32.gguf', '')
+
+            output_path = os.path.join(medium_precision_dir, f"{modified_model_file}-{option.upper()}.GGUF")
+
 
             if use_docker:
                 docker_image = "luxaplexx/convert-compaan-ollama"
@@ -64,7 +74,7 @@ def trigger_command(modelpath, options, use_docker):
 def show_medium_precision_quantization_page():
     st.title("Medium Precision Quantization")
 
-    models_dir = "llama.cpp/models/"
+    models_dir = os.path.join("llama.cpp", "models")
     gguf_files = list_gguf_files(models_dir)
 
     selected_gguf_file = st.selectbox("Select a GGUF File", gguf_files)
