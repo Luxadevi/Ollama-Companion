@@ -25,26 +25,25 @@ install_and_configure_docker() {
     esac
 }
 
-# Function to install packages
 install_packages() {
     # Update package lists
     case "$1" in
         debian)
             sudo apt-get update
-            sudo apt-get install -y python3 pip gcc make aria2 build-essential pciutils
+            sudo apt-get install -y python3 pip gcc make aria2 build-essential pciutils git # Add 'git' here
             ;;
         redhat)
             sudo yum update
-            sudo yum install -y python3 python3-pip gcc make aria2 pciutils
+            sudo yum install -y python3 python3-pip gcc make aria2 pciutils git # Add 'git' here
             ;;
         arch)
             sudo pacman -Syu
-            sudo pacman -S --noconfirm python3 python-pip gcc make aria2 base-devel pciutils
+            sudo pacman -S --noconfirm python3 python-pip gcc make aria2 base-devel pciutils git # Add 'git' here
             ;;
         macos)
             # Assumes Homebrew is installed
             brew update
-            brew install python3 pip gcc make aria2 cmake pciutils
+            brew install python3 pip gcc make aria2 cmake pciutils git # Add 'git' here
             ;;
         *)
             echo "Unsupported OS"
@@ -69,22 +68,36 @@ elif grep -q Microsoft /proc/version 2>/dev/null; then
     exit 0
 fi
 
-# Install packages
-install_packages $OS
-
-# Install and configure Docker
-install_and_configure_docker $OS
-
-# macOS specific installation for Ollama
-if [ "$OS" == "macos" ]; then
-    echo "Downloading Ollama for macOS..."
-    mkdir -p /MacOS
-    curl -o /MacOS/Ollama-darwin.zip https://ollama.ai/download/Ollama-darwin.zip
-    unzip /MacOS/Ollama-darwin.zip -d /MacOS/
+# Ask macOS and Linux users if they want to install or update Ollama
+if [ "$OS" == "macos" ] || [ "$OS" == "debian" ] || [ "$OS" == "redhat" ] || [ "$OS" == "arch" ]; then
+    while true; do
+        read -p "Do you want to install or update Ollama? (install/update/none): " choice
+        case "$choice" in
+            install)
+                # Install Ollama
+                break
+                ;;
+            update)
+                # Update Ollama
+                break
+                ;;
+            none)
+                # Do nothing and exit
+                echo "No action selected. Exiting..."
+                exit 0
+                ;;
+            *)
+                echo "Invalid choice. Please enter 'install', 'update', or 'none'."
+                ;;
+        esac
+    done
 fi
 
-# Linux specific installation for Ollama
-if [ "$OS" == "debian" ] || [ "$OS" == "redhat" ] || [ "$OS" == "arch" ]; then
+# Clone the llama.cpp repository from GitHub
+git clone https://github.com/ggerganov/llama.cpp.git
+
+# Linux specific installation for Ollama (if selected)
+if [ "$choice" == "install" ] && [ "$OS" == "debian" ] || [ "$OS" == "redhat" ] || [ "$OS" == "arch" ]; then
     curl -O https://ollama.ai/install.sh
     chmod +x install.sh
     ./install.sh
@@ -143,32 +156,117 @@ fi
 
 else
     # Check for Jupyter
-    if [ -n "$JUPYTERHUB_SERVICE_PREFIX" ]; then
-        echo "Jupyter notebook detected. Start Ollama from the web interface."
+    if [ "$OS" == "jupyter" ]; then
+        # Set up Ollama.sh for Jupyter
+        echo "Setting up Ollama.sh for Jupyter..."
+        if chmod +x /content/ollama.sh && /content/ollama.sh; then
+            echo "Ollama.sh setup and executed successfully for Jupyter"
+        else
+            echo "Failed to set up and execute Ollama.sh for Jupyter" >&2
+        fi
     else
         echo "No compatible service management found."
     fi
 fi
 
-# Compile llama.cpp if exists
-if [ -d "./llama.cpp" ]; then
+# Compile llama.cpp if it exists
+# Compile llama.cpp if it exists (macOS-specific)
+if [ "$OS" == "macos" ] && [ -d "./llama.cpp" ]; then
     cd ./llama.cpp
-    if [ "$OS" == "macos" ]; then
-        cmake .
+
+    # Create a "build" directory if it doesn't exist
+    if mkdir -p build; then
+        echo "Build directory created successfully"
     else
-        make
+        echo "Failed to create build directory" >&2
     fi
-    cd ..
-    else ./llama.cpp make
+
+    # Run CMake from the "build" directory
+    if cmake ..; then
+        echo "CMake configuration successful"
+    else
+        echo "CMake configuration failed" >&2
+    fi
+
+    # Build the project
+    if cmake --build .; then
+        echo "Build successful"
+    else
+        echo "Build failed" >&2
+    fi
+
+    # Copy the generated files to the main "llama.cpp" folder
+    if cp -r * ..; then
+        echo "Generated files copied successfully"
+    else
+        echo "Failed to copy generated files" >&2
+    fi
+
+    # Optional: Clean up the "build" directory (remove it if you don't need it)
+    if rm -r build; then
+        echo "Build directory removed successfully"
+    else
+        echo "Failed to remove build directory" >&2
+    fi
 fi
 
-# Install Python requirements
+
+    # Build the project
+    if cmake --build .; then
+        echo "Build successful"
+    else
+        echo "Build failed" >&2
+    fi
+
+    # Copy the generated files to the main "llama.cpp" folder
+    if cp -r * ..; then
+        echo "Generated files copied successfully"
+    else
+        echo "Failed to copy generated files" >&2
+    fi
+
+    # Optional: Clean up the "build" directory (remove it if you don't need it)
+    if rm -r build; then
+        echo "Build directory removed successfully"
+    else
+        echo "Failed to remove build directory" >&2
+    fi
+
+fi
+
+# Check if Jupyter is detected and build the files in a specific directory
+if [ "$OS" == "jupyter" ]; then
+    # Assuming /content/Ollama-Companion/llama.cpp is the directory to build in
+    if make -C /content/Ollama-Companion/llama.cpp; then
+        echo "Build for Jupyter successful"
+    else
+        echo "Build for Jupyter failed" >&2
+    fi
+fi
+
+# Check for Linux operating systems and run make
+if [ "$OS" != "macos" ] && [ "$OS" != "jupyter" ]; then
+    if make -C /llama.cpp; then
+        echo "Build for other OS successful"
+    else
+        echo "Build for other OS failed" >&2
+    fi
+fi
+
+# Install Python requirements (if requirements.txt exists)
 if [ -f requirements.txt ]; then
-    pip install -r requirements.txt
+    if pip install -r requirements.txt; then
+        echo "Python requirements installation successful"
+    else
+        echo "Python requirements installation failed" >&2
+    fi
+fi
+# Run the Python key_generation script
+if python3 key_generation.py; then
+    echo "Key generation script executed successfully"
+else
+    echo "Key generation script execution failed" >&2
 fi
 
 echo "Installation complete."
-
-
-
-
+echo "Installation complete."
