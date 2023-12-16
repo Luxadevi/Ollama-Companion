@@ -10,4 +10,4 @@ Pyyaml
 httpx
 APScheduler
 cryptography
-gradio
+pycloudflared

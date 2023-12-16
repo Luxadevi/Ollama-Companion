@@ -3,6 +3,7 @@ import subprocess
 import streamlit as st
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+from pathlib import Path
 
 # Initialize APScheduler
 scheduler = BackgroundScheduler()
@@ -14,27 +15,28 @@ downloaded_files = []
 
 def download_file_task(file_url, download_path, filename):
     global downloaded_files
-    file_path = os.path.join(download_path, filename)
+    file_path = download_path / filename
     command = [
         "aria2c", file_url,
         "--max-connection-per-server=16", "--split=8", "--min-split-size=25M", "--allow-overwrite=true",
-        "-d", download_path, "-o", filename,
+        "-d", str(download_path), "-o", filename,
         "--continue=true"
     ]
     try:
         subprocess.run(command, check=True)
-        downloaded_files.append(file_path)
+        downloaded_files.append(str(file_path))
     except subprocess.CalledProcessError as e:
         print(f"Error downloading {filename}: {str(e)}")
 
 def queue_download(file_links_dict, model_name):
     global scheduled_jobs
     folder_name = model_name.split("/")[-1]
-    download_path = f"llama.cpp/models/{folder_name}"
-    os.makedirs(download_path, exist_ok=True)
+    current_dir = Path(__file__).parent
+    download_path = current_dir.parent / f"llama.cpp/models/{folder_name}"
+    download_path.mkdir(parents=True, exist_ok=True)
 
     for file_name, file_url in file_links_dict.items():
-        filename = file_name.split('/')[-1]
+        filename = Path(file_name).name
         job = scheduler.add_job(download_file_task, args=[file_url, download_path, filename])
         scheduled_jobs.append(job)
 
@@ -82,8 +84,8 @@ def get_files_from_repo(url, repo_name):
 def show_downloading_models_page():
     st.title("Model Downloader")
 
-    model_name = st.text_input("Model Name or ID", "Enter a model name")
-
+    model_name = st.text_input("Download PyTorch models from Hugginface", "Use the HuggingfaceUsername/Modelname")
+    instruction = st.text("Instructions  . For example")
     if st.button("Get File List"):
         _, file_links = get_files_from_repo(construct_hf_repo_url(model_name), model_name)
         if file_links:
@@ -105,3 +107,23 @@ def show_downloading_models_page():
     if st.button("Stop Downloads"):
         cancel_message = cancel_downloads()
         st.text(cancel_message)
+    with st.expander("How to Download Model Files from Hugging Face", expanded=False):
+        st.markdown("""
+        **How to Download Model Files from Hugging Face**
+
+        - First, visit the Hugging Face model page that you want to download. For example, if you want to download the model at this link: [https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2).
+
+        - On the model page, locate the icon next to the username of the model's author. This icon typically looks like a clipboard or a copy symbol. Click on this icon to copy the Username/RepositoryName, which in this example is `mistralai/Mistral-7B-Instruct-v0.2`.
+
+        - Paste the copied Username/RepositoryName `mistralai/Mistral-7B-Instruct-v0.2` directly into the input field.
+
+        - Click the "Get file list" button or option to retrieve the list of files available in this repository.
+
+        - Review the list of files to ensure you have the correct model files that you want to download.
+
+        - Finally, click the "Download Model" button or option to initiate the download process for the selected model files.
+
+        - The model files will be saved in the `llama.cpp/models` directory on your device.
+
+        - Now you have successfully downloaded the model files from Hugging Face, and they are stored in the `llama.cpp/models` directory for your use.
+        """)

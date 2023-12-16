@@ -3,15 +3,14 @@ import streamlit as st
 from huggingface_hub import HfApi
 from requests.exceptions import HTTPError
 from cryptography.fernet import Fernet
-from token_encrypt import load_key
-
+from .token_encrypt import load_key
+from pathlib import Path  # Import pathlib
 ## Uses username from HF Token
 def get_username_from_token(token):
     api = HfApi()
     user_info = api.whoami(token=token)
     return user_info['name']
 
-## Decrypt token if used encrypted token
 def decrypt_token(encrypted_token):
     key = load_key()
     f = Fernet(key)
@@ -34,24 +33,24 @@ def upload_files_to_repo(token, models_dir, repo_name, files_to_upload, readme_c
 
         # Upload README.md if content is provided
         if readme_content:
-            readme_path = os.path.join(models_dir, 'README.md')
-            with open(readme_path, 'w') as readme_file:
+            readme_path = Path(models_dir) / 'README.md'
+            with open(str(readme_path), 'w') as readme_file:
                 readme_file.write(readme_content)
-            api.upload_file(path_or_fileobj=readme_path, path_in_repo='README.md', repo_id=repo_id, token=token)
-            os.remove(readme_path)
+            api.upload_file(path_or_fileobj=str(readme_path), path_in_repo='README.md', repo_id=repo_id, token=token)
+            os.remove(str(readme_path))
 
         # Upload selected files
         for file_name in files_to_upload:
             if file_name in high_precision_files.get(selected_model, []):
-                folder_path = os.path.join(models_dir, selected_model, "High-Precision-Quantization")
+                folder_path = Path(models_dir) / selected_model / "High-Precision-Quantization"
             elif file_name in medium_precision_files.get(selected_model, []):
-                folder_path = os.path.join(models_dir, selected_model, "Medium-Precision-Quantization")
+                folder_path = Path(models_dir) / selected_model / "Medium-Precision-Quantization"
             else:
-                continue  # Skip if the file is not found in either folder
+                continue
 
-            file_path = os.path.join(folder_path, file_name)
-            if os.path.isfile(file_path):
-                api.upload_file(path_or_fileobj=file_path, path_in_repo=file_name, repo_id=repo_id, token=token)
+            file_path = folder_path / file_name
+            if file_path.is_file():
+                api.upload_file(path_or_fileobj=str(file_path), path_in_repo=file_name, repo_id=repo_id, token=token)
 
         return f"Files uploaded successfully. View at: https://huggingface.co/{repo_id}"
     except Exception as e:
@@ -60,15 +59,16 @@ def upload_files_to_repo(token, models_dir, repo_name, files_to_upload, readme_c
 
 def list_model_files(models_dir, subfolder):
     model_files = {}
-    if os.path.exists(models_dir):
-        for model_folder in os.listdir(models_dir):
-            specific_folder = os.path.join(models_dir, model_folder, subfolder)
-            if os.path.exists(specific_folder) and os.path.isdir(specific_folder):
-                model_files[model_folder] = os.listdir(specific_folder)
+    models_dir_path = Path(models_dir)
+    if models_dir_path.exists() and models_dir_path.is_dir():
+        for model_folder in models_dir_path.iterdir():
+            specific_folder = models_dir_path / model_folder / subfolder
+            if specific_folder.exists() and specific_folder.is_dir():
+                model_files[model_folder.name] = [str(file_name.name) for file_name in specific_folder.iterdir() if file_name.is_file()]
     return model_files
 
 def show_model_management_page():
-    st.title("Model Management")
+    st.title("Upload converted models to HuggingFace")
 
     models_dir = "llama.cpp/models/"
     high_precision_files = list_model_files(models_dir, "High-Precision-Quantization")
@@ -105,7 +105,7 @@ def show_model_management_page():
             os.environ['HUGGINGFACE_TOKEN'] = hf_token
 
     if st.button("Upload Selected Files"):
-        folder_to_upload = os.path.join(models_dir, selected_model, selected_subfolder)
+        folder_to_upload = Path(models_dir) / selected_model / selected_subfolder
         upload_message = upload_files_to_repo(
             hf_token, 
             models_dir, 
@@ -120,3 +120,22 @@ def show_model_management_page():
 
         if 'HUGGINGFACE_TOKEN' in os.environ:
             del os.environ['HUGGINGFACE_TOKEN']
+    with st.expander("Model Upload Instructions", expanded=False):
+        st.markdown("""
+        **Model Upload Instructions**
+
+        Use this section to upload your converted models to Hugging Face with enhanced security.
+
+        **Steps for Uploading Models:**
+
+        1. **Select a Model:** Choose a model from the dropdown list. These models are found in the `llama.cpp/models` directory.
+        2. **Enter Repository Name:** Specify a name for the new Hugging Face repository where your model will be uploaded.
+        3. **Choose Files for Upload:** Select the files you want to upload from the chosen model's subfolders.
+        4. **Add README Content:** Optionally, write content for the README.md file of your repository.
+        5. **Token Usage:**
+            - For added security, use an encrypted token. Encrypt your Hugging Face token on the **Token Encrypt** page and paste it into the "Enter Encrypted Token" field.
+            - Alternatively, you can directly enter an unencrypted Hugging Face token.
+        6. **Upload Files:** Click the "Upload Selected Files" button to start uploading your files to Hugging Face.
+
+        The uploaded models will be viewable at `https://huggingface.co/your-username/your-repo-name`.
+        """)

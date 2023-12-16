@@ -1,32 +1,43 @@
+# main.py
+
 import streamlit as st
-from model_selector import show_model_selector
-from modelfile_templater import show_model_dropdowns, show_parameter_sliders, show_model_name_input, display_curl_command
-from ollama_api_configurator import show_ollama_api_configurator
-from litellm_proxy import show_litellm_proxy_page
-from public_endpoint import show_public_endpoint_page
-from downloading_models import show_downloading_models_page
-from High_Precision_Quantization import show_high_precision_quantization_page
-from Medium_Precision_Quantization import show_medium_precision_quantization_page
-from model_management import show_model_management_page  
-from token_encrypt import show_token_encrypt_page
-import key_generation
+import importlib
+from shared import modules_to_import
+# Imported models are listed in shared.py
+# Dynamically import each module and its functions
+for module_name, function_list in modules_to_import.items():
+    module = importlib.import_module(f"modules.{module_name}")
+    for function_name in function_list:
+        if hasattr(module, function_name):
+            globals()[function_name] = getattr(module, function_name)
+        else:
+            print(f"Warning: {function_name} not found in {module_name}")
+
+
 
 
 def main():
+    
+    
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Choose a Page", ["Model Selector", "Modelfile Templater", "Ollama-API", 
+    page = st.sidebar.radio("Choose a Page", ["Model Selector", "Interactive Modelfile Creator", "Chat Interface", "Set Ollama API Url",
                                               "LiteLLM Proxy", "Public Endpoint", "Downloading Models",
                                               "High Precision Quantization", "Medium Precision Quantization",
-                                              "Model Management", "Token-encrypt"])
+                                              "Upload to HF", "Token-encrypt"])
+
+
 
     if page == "Model Selector":
         show_model_selector()
-    elif page == "Modelfile Templater":
-        show_model_name_input()
-        show_model_dropdowns()
-        show_parameter_sliders()
-        display_curl_command()
-    elif page == "Ollama-API":
+    elif page == "Interactive Modelfile Creator":
+        model_name_key = "model_creator_name_input"  # Unique key for this instance
+ 
+        display_model_creator()  # Ensure this function also uses unique keys for widgets
+
+        
+    elif page == "Chat Interface":
+        show_chat_interface()    
+    elif page == "Set Ollama API Url":
         show_ollama_api_configurator()
     elif page == "LiteLLM Proxy":
         show_litellm_proxy_page()
@@ -38,11 +49,16 @@ def main():
         show_high_precision_quantization_page()
     elif page == "Medium Precision Quantization":
         show_medium_precision_quantization_page()
-    elif page == "Model Management": 
+    elif page == "Upload to HF": 
         show_model_management_page()
     elif page == "Token-encrypt":
-        show_token_encrypt_page()
+        show_token_encrypt_page()        
+
+    
 
 
+    
 if __name__ == "__main__":
     main()
+    
+

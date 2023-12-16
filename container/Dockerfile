@@ -11,7 +11,7 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git
 
 # Compile the code
 WORKDIR /usr/src/llama.cpp
-RUN make -DLLAMA_CUBLAS=ON
+RUN make 
 
 # Set up a Python virtual environment and install dependencies
 RUN python3 -m venv /venv
