@@ -1,90 +1,197 @@
-<img src="https://i.postimg.cc/ZKNgyLT0/chrome-Flwo-E6l-G9e.png" alt="Ollama Buddy" width="500" height="450" style="display: block; margin: 0 auto;">
+<h1 align="center">Ollama-Companion</h1>
+
+<p align="center">
+  <img src="https://i.imgur.com/ESr6xlT.png" alt="Ollama-Companion Banner" width="600">
+</p>
 
 
-# Ollama Companion
-
-Welcome to **Ollama Companion**, a Gradio-based web application designed to streamline and simplify command line tasks for Ollama users. Our goal is to enhance the user experience by providing a user-friendly interface for managing and interacting with various models and functionalities.  
-Want to try this companion without installing check out the notebook.  
-https://github.com/Luxadevi/Ollama-Colab-Integration/tree/main
-## Core Features
-
-### Up-to-Date Model Access
-- **Model Selection**: Easy access to an updated list of models through a user-friendly dropdown menu.
-
-### ModelFile Templater
-- **Parameter Customization**: Tailor model parameters like mirostat settings and temperature to your needs.
-- **Simplified Deployment**: Deploy models with custom settings, bypassing complex command line processes.
-- **Easy to use interface**: Visualize your modelfile with a UI and sliders for all parameters.  
-
-### Detailed Model Insights
-- **Model Information**: Access in-depth details about each model, including licensing and parameters.
-- **Model Overview**: Quickly view all available models.
-
-### Public Endpoint Management
-- **Endpoint Control**: Manage public endpoints for Llama and OpenAI models with ease.
-- **Log Monitoring**: Keep track of endpoint performance through real-time logs.
-- **One click endpoint**: Get a public endpoint with just one buttonclick.
-  
-
-### LiteLLM Proxy Integration
-- **Proxy Management**: Directly control the LiteLLM proxy via a simple interface.
-- **Automated Polling**: Effortlessly implement polling for model updates.
-- **Log Analysis**: Easily view and analyze LiteLLM proxy logs.
-- **Dynamic Configuration**: Maintains a dynamically updated config for all models. Configurations are refreshed and the proxy is rebooted automatically when a new model is detected.
-
-### Additional Utilities
-- **CURL Command Creation**: Generate specific CURL commands for model interactions.
-- **Manual Model Setup**: Directly create models with custom content and streaming.
-- **Log File Handling**: Manage system logs for operational clarity.
-  
-## Coming Features in the Near Future
-
-- **ChatUI with Custom Parameters**: An interactive ChatUI allowing for custom parameters to be set for each chat, enhancing user control and interaction flexibility.
-- **Model Push Functionality**: A feature to push models directly from the interface, streamlining the process of model management.
-- **Quantization and Automatic Push to GGUF and HuggingFace**: Automatically quantize different models and seamlessly push them to Ollama/HuggingFace repositories.
-- **Embedding Generation**: Integrate the ability to generate embeddings, providing more depth to model interactions.
-- **UI Improvement**: Add more general styling and colorscheme for the best readability
-
-## Getting Started
-
-### Automated Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Luxadevi/Ollama-Companion
-   ```
-2. Navigate to the cloned directory and run the `install.sh` script:
-   ```bash
-   cd Ollama-Companion
-   ./install.sh
-   ```
-
-### Manual Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Luxadevi/Ollama-Companion
-   ```
-2. Navigate to the cloned directory:
-   ```bash
-   cd Ollama-Companion
-   ```
-3. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## System Requirements
-
-- Python 3.x
-- Necessary Python packages: `gradio`, `requests`, `flask`, `flask-cloudflared`, `httpx`, `yaml`, etc.
-- LinuxOS
 
 
-If someone could test this on MacOS and provide feedback so we can make the necessary changes
+## Enhanced with Streamlit
 
-## Contributing
+Ollama-Companion is developed to enhance the interaction and management of Ollama and other large language model (LLM) applications. It aims to support all Ollama API endpoints, facilitate model conversion, and ensure seamless connectivity, even in environments behind NAT. This tool is crafted to construct a versatile and user-friendly LLM software stack, meeting a diverse range of user requirements.
 
-Contributions to Ollama Companion are highly appreciated. Please refer to our contributing guidelines for submitting pull requests and suggestions.
+Transitioning from Gradio to Streamlit necessitated the development of new tunneling methods to maintain compatibility with Jupyter Notebooks, like Google Colab.
 
-## License
+Explore our Colab Integration to set up the companion within minutes and obtain a public-facing URL.
 
-Ollama Companion is available under [LICENSE]. It is free for use, modification, and distribution under the terms of the license.
+Interact with Ollama API without typing commands and using a interface to manage your models.
+Run Ollama or connect to a client an use this WebUI to manage.
+### How to Run
+
+Clone the repository:
+
+
+```
+git clone https://github.com/Luxadevi/Ollama-Companion.git
+```
+**Make the linux and mac install script executeable**
+```
+sudo chmod +x install.sh
+```
+**Start the linux installer.sh**
+```
+./install.sh
+```
+**Do not start the installer with sudo but provide your password if neccesairy**
+
+## Starting Ollama-Companion
+To start the Companion with a public url for example when you want to share the webpage with others or using this on a service like Colab.
+**Use the command.**
+```
+python3 runn_app.py
+```
+Starting the Companion on a local 127.0.0.1:8501 instance run
+```
+streamlit run main.py 
+```
+
+**Note**: Windows support is currently unavailable for running Ollama, but you can run the companion from a Windows client for local quantization and management. You can also manage a remote Ollama instance by setting the Ollama endpoint in the UI.
+
+### Add Your Own Modules
+Develop your own Streamlit components and integrate them into Ollama-Companion. See examples using LangChain and other software stacks within Streamlit.
+<p align="center">
+  <img src="https://i.imgur.com/maRdTU6.png" alt="Ollama-Companion Second Image">
+</p>
+
+## LiteLLM Proxy Management
+
+### Overview
+This part allows you to manage and interact with the LiteLLM Proxy, which is used to convert over 100 LLM providers to the OpenAI API standard. 
+
+Check LiteLLM out at [LiteLLM proxy ](https://litellm.ai/) 
+
+
+### LiteLLM Proxy Controls
+
+- **Start LiteLLM Proxy**: Click this button to start the LiteLLM Proxy. The proxy will run in the background and facilitate the conversion process.
+- **Read LiteLLM Log**: Use this button to read the LiteLLM Proxy log, which contains relevant information about its operation.
+- **Start Polling**: Click to initiate polling. Polling checks for updates to the ollama API and adds any new models to the configuration.
+- **Stop Polling**: Use this button to stop polling for updates.
+- **Kill Existing LiteLLM Processes**: If there are existing LiteLLM processes running, this button will terminate them.
+- **Free Up Port 8000**: Click this button to free up port 8000 if it's currently in use.
+
+*Please note that starting the LiteLLM Proxy and performing other actions may take some time, so be patient and wait for the respective success messages.*
+
+### LiteLLM Proxy Log
+
+The "Log Output" section will display relevant information from the LiteLLM Proxy log, providing insights into its operation and status.
+
+## How to Download Model Files from Hugging Face
+
+To download model files from Hugging Face, follow these steps:
+
+1. **Visit the Model Page**: Go to the Hugging Face model page you wish to download. For example: [Mistralai/Mistral-7B-Instruct-v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2).
+
+2. **Copy Username/RepositoryName**: On the model page, locate the icon next to the username of the model's author (usually a clipboard or copy symbol). Click to copy the Username/RepositoryName, e.g., `mistralai/Mistral-7B-Instruct-v0.2`.
+
+3. **Paste in the Input Field**: Paste the copied Username/RepositoryName directly into the designated input field in your application.
+
+4. **Get File List**: Click the "Get file list" button to retrieve a list of available files in this repository.
+
+5. **Review File List**: Ensure the list contains the correct model files you wish to download.
+
+6. **Download Model**: Click the "Download Model" button to start the download process for the selected model files.
+
+7. **File Storage**: The model files will be saved in the `llama.cpp/models` directory on your device.
+
+By following these steps, you have successfully downloaded the model files from Hugging Face, and they are now stored in the `llama.cpp/models` directory for your use.
+
+
+## How to convert Models
+
+## Step One: Model Conversion with High Precision
+
+### Conversion Process
+
+1. **Select a Model Folder**: Choose a folder within `llama.cpp/models` that contains the model you wish to convert.
+
+2. **Set Conversion Options**: Select your desired conversion options from the provided checkboxes, F32 F16 or Q8_0.
+
+3. **Docker Container Option**: Optionally, use a Docker container for added flexibility and compatibility.
+
+4. **Execute Conversion**: Click the "Run Commands" button to start the conversion process.
+
+5. **Output Location**: Converted models will be saved in the `High-Precision-Quantization` subfolder within the selected model folder.
+
+Utilize this process to efficiently convert models while maintaining high precision and compatibility with `llama.cpp`.
+
+## Step Two: Model Quantization Q and Kquants
+
+### Quantization Instructions
+
+1. **Select GGUF File**: Choose the GGUF file you wish to quantize from the dropdown list.
+
+2. **Quantization Options**: Check the boxes next to the quantization options you want to apply (Q, Kquants).
+
+3. **Execution Environment**: Choose to use either the native `llama.cpp` or a Docker container for compatibility.
+
+4. **Run Quantization**: Click the "Run Selected Commands" button to schedule and execute the quantization tasks.
+
+5. **Save Location**: The quantized models will be saved in the `/modelname/Medium-Precision-Quantization` folder.
+
+Follow these steps to perform model quantization using Q and Kquants, saving the quantized models in the specified directory.
+Schedule multiple options in a row they will remember and run eventually.
+
+## Model Upload Instructions
+
+Use this section to securely upload your converted models to Hugging Face.
+
+### Steps for Uploading Models
+
+1. **Select a Model**: Choose a model from the dropdown list. These models are located in the `llama.cpp/models` directory.
+
+2. **Enter Repository Name**: Specify a name for the new Hugging Face repository where your model will be uploaded.
+
+3. **Choose Files for Upload**: Select the files you wish to upload from the subfolders of the chosen model.
+
+4. **Add README Content**: Optionally, write content for the README.md file of your new repository.
+
+#### Token Usage
+- For enhanced security, use an encrypted token. Encrypt your Hugging Face token on the Token Encrypt page and enter it in the "Enter Encrypted Token" field.
+- Alternatively, enter an unencrypted Hugging Face token directly.
+
+5. **Upload Files**: Click the "Upload Selected Files" button to initiate the upload to Hugging Face.
+
+After completing these steps, your uploaded models will be accessible at `https://huggingface.co/your-username/your-repo-name`.
+
+## Try Ollama-Companion
+Try ollama Companion deployed on google Colab, with our Colab Notebooks and deploy a instance within minutes.
+
+
+
+
+### Core Features
+
+#### Streamlit-Powered Interface
+- **Intuitive and Responsive UI**
+- **Advanced Modelfile Management**
+- **Dynamic UI Building Blocks**
+
+#### Model Compatibility and Conversion
+- **Download and Convert PyTorch Models from Huggingface**
+- **Multiple Format Conversion Options**
+
+#### Enhanced Connectivity and Sharing
+- **Easy API Connectivity via Secure Tunnels**
+- **Options for Sharing and Cloud Testing**
+- **Accessible from Any Network Setup**
+
+#### Efficient Workflow Management
+- **Easy Model Upload to Huggingface**
+- **Capability to Queue Multiple Workloads**
+
+#### Security and Configuration
+- **Integrated LLAVA Image Analysis**
+- **Configurable Security Features**
+- **Advanced Token Encryption**
+
+### Future Directions and Contributions
+
+We are dedicated to the continuous enhancement of Ollama-Companion, with a focus on user experience and expanded functionality.
+
+
+**Check the docs for more information**
+### License
+
+Licensed under the Apache License.

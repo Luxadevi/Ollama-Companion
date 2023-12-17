@@ -1,81 +1,235 @@
 #!/bin/bash
 
-# Function to install Python packages
-install_python_packages() {
-    echo "Installing Python packages..."
-    pip install -U gradio requests flask flask-cloudflared httpx litellm PyYAML asyncio
+# Function to check if a command exists in executable paths
+is_command_installed() {
+    command -v "$1" >/dev/null 2>&1
 }
 
-# Function to check and install Ollama
-install_ollama() {
-    if id "ollama" &>/dev/null || getent group "ollama" &>/dev/null; then
-        echo "Ollama user or group found, assuming Ollama is installed."
-    else
-        echo "Installing Ollama..."
-        curl -s https://ollama.ai/install.sh | bash
-    fi
+# Function to install pip3
+install_pip() {
+    local os=$(detect_os)
+    case "$os" in
+        debian | redhat | arch)
+            sudo apt-get update && sudo apt-get install -y python3-pip
+             ;;
+        macos)
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python3 get-pip.py --user
+            rm get-pip.py
+             ;;
+         *)
+            echo "Unsupported OS for pip installation."
+            return 1
+             ;;
+    esac
+    echo "Pip installed successfully."
+    return 0
 }
-
-# Function to check Ollama serve port
-check_ollama_port() {
-    OLLAMA_PORT=$(lsof -i -P -n | grep LISTEN | grep ollama | awk '{print $9}' | cut -d: -f2)
-    if [ "$OLLAMA_PORT" == "11434" ]; then
-        echo "Ollama serve running on default port, no further action needed."
-    else
-        echo "Ollama serve is running on a non-default port: $OLLAMA_PORT"
-        read -p "Do you want to change the port of the proxy and companion to reflect this? (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            change_port_references "$OLLAMA_PORT"
+# Function to check if a specific version of Python is installed
+is_python_installed() {
+    if is_command_installed python3; then
+        local python_version=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+        if [[ "$python_version" < "3.10" ]]; then
+            echo "Python 3.10 or later is required. Installed version is $python_version."
+            return 1
         fi
+        echo "Python 3.10 or later is already installed."
+        return 0
+    else
+        echo "Python 3.10 is not installed."
+        return 1
     fi
 }
 
-# Function to change port references in Python scripts
-change_port_references() {
-    local new_port=$1
-    echo "Changing port references to $new_port..."
-    sed -i "s/11434/$new_port/g" tools/ollama_companion.py tools/endpoint.py tools/endpointopenai.py
-
+# Function to check if Docker is installed
+is_docker_installed() {
+    is_command_installed docker
 }
 
-# Function to create and enable a systemd service
-setup_systemd_service() {
-    SERVICE_FILE="/etc/systemd/system/ollama_companion.service"
+# Function to install Docker based on OS
+install_docker() {
+    if is_docker_installed; then
+        echo "Docker is already installed."
+        return 0
+    fi
 
-    echo "Creating systemd service at $SERVICE_FILE"
-    cat << EOF | sudo tee $SERVICE_FILE
-[Unit]
-Description=Ollama Companion Service
-After=network.target
-
-[Service]
-User=$USER
-ExecStart=/usr/bin/python3 /path/to/ollama_companion.py
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-    echo "Reloading systemd daemon and enabling service..."
-    sudo systemctl daemon-reload
-    sudo systemctl enable ollama_companion.service
-    sudo systemctl start ollama_companion.service
-    echo "Ollama Companion service is now enabled and started."
+    local os=$(detect_os)
+    case "$os" in
+        debian | redhat | arch)
+            sudo apt-get update && sudo apt-get install -y docker.io
+            sudo groupadd docker 2>/dev/null || true
+            sudo usermod -aG docker $USER
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            ;;
+        macos)
+            brew install docker
+            ;;
+        *)
+            echo "Unsupported OS for Docker installation."
+            return 1
+            ;;
+    esac
+    echo "Docker installed successfully."
+    return 0
 }
 
-# Main script execution
-install_python_packages
-install_ollama
-check_ollama_port
+# Function to install essential packages
+install_packages() {
+    local packages=("gcc" "make" "aria2" "git" "pciutils" "pip" "pip3")
+    local install_needed=false
 
-echo "Installation successful! The Ollama companion will now open."
-echo "Next time, you can start the companion by running: python3 ./ollama_companion.py"
+    for package in "${packages[@]}"; do
+        if ! is_command_installed "$package"; then
+            install_needed=true
+            break
+        fi
+    done
 
-# Prompt user to set up as a Linux service
-read -p "Do you want to set up Ollama Companion as a Linux service? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    setup_systemd_service
-fi
+    if [ "$install_needed" = false ]; then
+        echo "All essential packages are already installed."
+        return 0
+    fi
+
+    local os=$(detect_os)
+    case "$os" in
+        debian | redhat | arch)
+            sudo apt-get update && sudo apt-get install -y "${packages[@]}"
+            ;;
+        macos)
+            brew install "${packages[@]}"
+            ;;
+        *)
+            echo "Unsupported OS for package installation."
+            return 1
+            ;;
+    esac
+    echo "Packages installed successfully."
+    return 0
+}
+
+# Function to determine the operating system
+detect_os() {
+    local os_name=$(uname -s)
+    case "$os_name" in
+        Darwin)
+            echo "macos"
+            ;;
+        Linux)
+            if grep -qi ubuntu /etc/os-release; then
+                echo "debian"
+            elif grep -qi centos /etc/os-release; then
+                echo "redhat"
+            elif grep -qi arch /etc/os-release; then
+                echo "arch"
+            else
+                echo "Unsupported Linux OS."
+                return 1
+            fi
+            ;;
+        *)
+            echo "Unsupported OS."
+            return 1
+            ;;
+    esac
+    return 0
+}
+
+install_python_requirements() {
+    local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "Pyyaml" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
+
+    for package in "${required_packages[@]}"; do
+        if pip install "$package"; then
+            echo "$package installed successfully."
+        else
+            echo "Failed to install $package."
+            return 1
+        fi
+    done
+
+    echo "All required Python packages installed successfully."
+    return 0
+}
+
+# Function to clone and build the llama.cpp repository
+clone_and_build_llama_cpp() {
+    git clone https://github.com/ggerganov/llama.cpp.git
+    if [ ! -d "llama.cpp" ]; then
+        echo "Failed to clone llama.cpp."
+        return 1
+    fi
+
+    local os_name="$(uname -s)"
+    case "$os_name" in
+        Linux)
+            make -C llama.cpp/
+            ;;
+        Darwin)
+            cd llama.cpp/ || return 1
+            cmake .
+            make
+            cd - || return 1
+            ;;
+        *)
+            echo "Unsupported operating system for building llama.cpp."
+            return 1
+            ;;
+    esac
+
+    echo "llama.cpp cloned and built successfully."
+    return 0
+}
+
+install_ollama() {
+    read -p "Do you want to install Ollama on this host? (y/n) " answer
+    case $answer in
+        [Yy]* )
+            curl https://ollama.ai/install.sh | sh
+            echo "Ollama installed on this host."
+            ;;
+        * )
+            echo "Ollama installation skipped."
+            ;;
+    esac
+}
+
+# Function to run the key_generation script
+run_key_generation() {
+    local script_dir="$(dirname "$(realpath "$0")")"
+    pushd "$script_dir" > /dev/null || return 1
+    if python3 "./key_generation.py"; then
+        echo "Key generation script executed successfully."
+    else
+        echo "Key generation script execution failed."
+        popd > /dev/null || return 1
+        return 1
+    fi
+    popd > /dev/null || return 1
+    return 0
+}
+
+main() {
+    local os=$(detect_os)
+
+    if [ "$os" = "Unsupported OS." ]; then
+        echo "Exiting due to unsupported OS."
+        exit 1
+    fi
+
+    if ! is_python_installed; then
+        echo "Python 3.10 or later is required but not installed. Exiting."
+        exit 1
+    fi
+    install_pip
+    install_docker
+    install_packages
+    clone_and_build_llama_cpp
+    install_python_requirements
+    print("Install Ollama on mac via the broser on https://ollama.ai/download/mac ")
+    install_ollama
+    run_key_generation
+
+    echo "Installation complete."
+}
+
+main
