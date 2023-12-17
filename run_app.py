@@ -19,7 +19,7 @@ def run_streamlit():
     print("Starting Streamlit App...")
     try:
         # Try to run Streamlit from the Jupyter environment path
-        subprocess.call(['streamlit', 'run', '/content/Ollama-Companion/main.py'])
+        subprocess.call(['streamlit', 'run', 'main.py'])
     except FileNotFoundError:
         # If the file is not found, run Streamlit from the current directory
         subprocess.call(['streamlit', 'run', 'main.py'])
