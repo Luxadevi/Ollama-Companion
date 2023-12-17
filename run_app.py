@@ -1,5 +1,6 @@
 import subprocess
 import re
+import os
 
 def start_tunnel():
     print("Starting Cloudflare Tunnel...")
@@ -15,13 +16,21 @@ def start_tunnel():
                 print(f"Tunnel URL: {url.group()}")
                 break
 
-def run_streamlit():
+def run_streamlit(streamlit_script_path):
     print("Starting Streamlit App...")
-    subprocess.call(['streamlit', 'run', 'main.py'])
+    subprocess.call(['streamlit', 'run', streamlit_script_path])
 
 def main():
-    start_tunnel()
-    run_streamlit()
+    streamlit_script_path = '/content/Ollama-Companion/main.py'
+
+    # Check if the specific Streamlit script exists in the Jupyter environment
+    if os.path.exists(streamlit_script_path):
+        print("Running Streamlit in Jupyter environment...")
+        run_streamlit(streamlit_script_path)
+    else:
+        print("Running Streamlit in a non-Jupyter environment...")
+        start_tunnel()
+        run_streamlit('main.py')
 
 if __name__ == "__main__":
     main()
