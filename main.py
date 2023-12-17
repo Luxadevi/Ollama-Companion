@@ -20,14 +20,14 @@ def main():
     
     
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Choose a Page", ["Model Selector", "Interactive Modelfile Creator", "Chat Interface", "Set Ollama API Url",
+    page = st.sidebar.radio("Choose a Page", ["Model Managment", "Interactive Modelfile Creator", "Chat Interface", "Set Ollama API Url",
                                               "LiteLLM Proxy", "Public Endpoint", "Downloading Models",
                                               "High Precision Quantization", "Medium Precision Quantization",
                                               "Upload to HF", "Token-encrypt"])
 
 
 
-    if page == "Model Selector":
+    if page == "Model Managment":
         show_model_selector()
     elif page == "Interactive Modelfile Creator":
         model_name_key = "model_creator_name_input"  # Unique key for this instance
