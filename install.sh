@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Function to check if running in a Jupyter environment
+is_jupyter() {
+    [ -n "$JUPYTER_RUNTIME_DIR" ]
+}
+
 # Function to check if a command exists in executable paths
 is_command_installed() {
     command -v "$1" >/dev/null 2>&1
@@ -33,7 +38,8 @@ install_docker() {
         return 0
     fi
 
-    case "$1" in
+    local os=$(detect_os)
+    case "$os" in
         debian)
             sudo apt-get update && sudo apt-get install -y docker.io
             ;;
@@ -57,14 +63,15 @@ install_docker() {
 
 # Function to configure Docker
 configure_docker() {
-    if [ "$1" != "macos" ]; then
+    local os=$(detect_os)
+    if [ "$os" != "macos" ] && [ "$os" != "jupyter" ]; then
         sudo groupadd docker 2>/dev/null || true
         sudo usermod -aG docker $USER
         sudo systemctl start docker
         sudo systemctl enable docker
         echo "Docker configured successfully."
     else
-        echo "Docker configuration not required for macOS."
+        echo "Docker configuration not required for macOS or Jupyter environments."
     fi
     return 0
 }
@@ -86,7 +93,8 @@ install_packages() {
         return 0
     fi
 
-    case "$1" in
+    local os=$(detect_os)
+    case "$os" in
         debian)
             sudo apt-get update && sudo apt-get install -y "${packages[@]}"
             ;;
@@ -97,7 +105,6 @@ install_packages() {
             sudo pacman -Syu && sudo pacman -S --noconfirm "${packages[@]}"
             ;;
         macos)
-            brew update
             brew install "${packages[@]}"
             ;;
         *)
@@ -126,6 +133,11 @@ change_file_ownership() {
 
 # Function to determine the operating system
 detect_os() {
+    if is_jupyter; then
+        echo "jupyter"
+        return 0
+    fi
+
     local os_name=$(uname -s)
     case "$os_name" in
         Darwin)
@@ -153,7 +165,14 @@ detect_os() {
 
 # Function to clone the llama.cpp repository
 clone_repository() {
-    if git clone https://github.com/ggerganov/llama.cpp.git; then
+    if is_jupyter; then
+            git clone https://github.com/ggerganov/llama.cpp.git /content/Ollama-Companion/; then
+            echo "Repository cloned successfully into Jupyter environment."
+        else
+            echo "Failed to clone repository into Jupyter environment."
+            return 1
+        fi
+    elif git clone https://github.com/ggerganov/llama.cpp.git; then
         echo "Repository cloned successfully."
     else
         echo "Failed to clone repository."
@@ -162,63 +181,40 @@ clone_repository() {
     return 0
 }
 
-# Function to build llama.cpp
 build_llama_cpp() {
-    local os="$1"
-    if [ "$os" == "macos" ] && [ -d "./llama.cpp" ]; then
-        cd ./llama.cpp
-
-        # Create a "build" directory if it doesn't exist
-        if mkdir -p build; then
-            echo "Build directory created successfully"
+    local os=$(detect_os)
+    if [ "$os" == "jupyter" ]; then
+        # Jupyter Notebook specific build steps
+        if [ -d "/content/Ollama-Companion/llama.cpp" ]; then
+            if make -C /content/Ollama-Companion/llama.cpp; then
+                echo "llama.cpp built successfully in Jupyter Notebook environment."
+            else
+                echo "Failed to build llama.cpp in Jupyter Notebook environment."
+                return 1
+            fi
         else
-            echo "Failed to create build directory" >&2
+            echo "/content/Ollama-Companion/llama.cpp directory not found."
+            return 1
         fi
-
-        # Run CMake from the "build" directory
-        if cmake ..; then
-            echo "CMake configuration successful"
+    else
+        # Existing logic for other environments
+        if [ -d "llama.cpp" ]; then
+            cd llama.cpp || return 1
+            if make; then
+                echo "llama.cpp built successfully using make."
+            else
+                echo "Failed to build llama.cpp using make."
+                return 1
+            fi
+            cd - || return 1
         else
-            echo "CMake configuration failed" >&2
-        fi
-
-        # Build the project
-        if cmake --build .; then
-            echo "Build successful"
-        else
-            echo "Build failed" >&2
-        fi
-
-        # Copy the generated files to the main "llama.cpp" folder
-        if cp -r * ..; then
-            echo "Generated files copied successfully"
-        else
-            echo "Failed to copy generated files" >&2
-        fi
-
-        # Optional: Clean up the "build" directory (remove it if you don't need it)
-        if rm -r build; then
-            echo "Build directory removed successfully"
-        else
-            echo "Failed to remove build directory" >&2
-        fi
-    elif [ "$os" == "jupyter" ]; then
-        # Assuming /content/Ollama-Companion/llama.cpp is the directory to build in
-        if make -C /content/Ollama-Companion/llama.cpp; then
-            echo "Build for Jupyter successful"
-        else
-            echo "Build for Jupyter failed" >&2
-        fi
-    elif [ "$os" != "macos" ] && [ "$os" != "jupyter" ]; then
-        if make -C /llama.cpp; then
-            echo "Build for other OS successful"
-        else
-            echo "Build for other OS failed" >&2
+            echo "llama.cpp directory not found."
+            return 1
         fi
     fi
+    return 0
 }
 
-# Function to install Python requirements
 install_python_requirements() {
     local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "Pyyaml" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
 
@@ -232,69 +228,47 @@ install_python_requirements() {
     done
 
     echo "All required Python packages installed successfully."
+    return 0
 }
 
 # Function to run the key_generation script
 run_key_generation() {
-    local script_dir="$1"
-    # Change to the script directory to ensure the .key directory is created there
-    pushd "$script_dir" > /dev/null
-    # Run the key generation script using the full path to avoid any working directory confusion
+    local script_dir="$(dirname "$(realpath "$0")")"
+    pushd "$script_dir" > /dev/null || return 1
     if python3 "./key_generation.py"; then
         echo "Key generation script executed successfully."
     else
         echo "Key generation script execution failed."
+        popd > /dev/null || return 1
         return 1
     fi
-    # Return to the previous directory
-    popd > /dev/null
+    popd > /dev/null || return 1
+    return 0
 }
 
 # Main script execution
 main() {
     local os=$(detect_os)
-    local script_dir="$(dirname "$(realpath "$0")")"
 
-    if [ $? -ne 0 ]; then
+    if [ "$os" = "Unsupported OS." ]; then
         echo "Exiting due to unsupported OS."
         exit 1
     fi
 
-    # Check for Python 3.10 or later
     if ! is_python_installed; then
         echo "Python 3.10 or later is required but not installed. Exiting."
         exit 1
     fi
 
-    # Check for the presence of Python virtual environment (venv)
-    if ! is_command_installed virtualenv; then
-        echo "Virtualenv is not installed. Please install it using 'pip install virtualenv' and then run this script again."
-        exit 1
-    fi
-
-    # Create and activate a Python virtual environment
-    create_and_activate_virtualenv
-
-    # Install Docker and configure it
     install_docker "$os" && configure_docker "$os"
-
-    # Install essential packages
     install_packages "$os"
-
-    # Clone the llama.cpp repository
     clone_repository
-
-    # Build llama.cpp
     build_llama_cpp "$os"
-
-    # Install Python requirements
     install_python_requirements
-
-    # Change file ownership and permissions after all operations
     change_file_ownership
 
     # Run the key generation script with the correct path
-    run_key_generation "$script_dir"
+    run_key_generation "$(dirname "$(realpath "$0")")"
 
     echo "Installation complete."
 }
