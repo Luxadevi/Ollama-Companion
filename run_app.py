@@ -18,15 +18,22 @@ def run_streamlit():
     print("Starting Streamlit App...")
     subprocess.call(['streamlit', 'run', '/content/Ollama-Companion/main.py'])
 
+def run_ollama():
+    print("Starting Ollama...")
+    subprocess.call(['python3', '/content/Ollama-Companion/tools/Ollama.py'])
+
 def main():
     tunnel_thread = threading.Thread(target=start_tunnel)
     streamlit_thread = threading.Thread(target=run_streamlit)
+    ollama_thread = threading.Thread(target=run_ollama)
 
     tunnel_thread.start()
     streamlit_thread.start()
+    ollama_thread.start()
 
     tunnel_thread.join()
     streamlit_thread.join()
+    ollama_thread.join()
 
 if __name__ == "__main__":
     main()
