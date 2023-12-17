@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Function to check if running in a Jupyter environment
-is_jupyter() {
-    [ -n "$JUPYTER_RUNTIME_DIR" ]
-}
+# Global variable to identify if running in a Jupyter environment
+IS_JUPYTER=false
+if [ -d "/content/Ollama-Companion/" ]; then
+    IS_JUPYTER=true
+fi
 
 # Function to check if a command exists in executable paths
 is_command_installed() {
@@ -78,7 +79,7 @@ configure_docker() {
 
 # Function to install essential packages
 install_packages() {
-    local packages=("gcc" "make" "aria2" "git")
+    local packages=("gcc" "make" "aria2" "git" "pciutils" )
     local install_needed=false
 
     for package in "${packages[@]}"; do
@@ -117,9 +118,16 @@ install_packages() {
 }
 
 # Function to change ownership and permissions of all files and directories
+# Function to change ownership and permissions of all files and directories
 change_file_ownership() {
+    # Check if running in Jupyter environment
+    if $IS_JUPYTER; then
+        echo "In Jupyter environment, skipping chown commands."
+        return 0
+    fi
+
     local script_dir="$(dirname "$(realpath "$0")")"
-    echo "Changing ownership of all files and directories in $script_dir..."
+    echo "Changing ownership of all files and directories in $script_dir for Linux environment..."
 
     # Change ownership to the current user for all files and directories
     find "$script_dir" -exec chown $USER {} \;
@@ -130,7 +138,6 @@ change_file_ownership() {
 
     echo "Ownership and permissions changed successfully."
 }
-
 # Function to determine the operating system
 detect_os() {
     if is_jupyter; then
@@ -165,8 +172,9 @@ detect_os() {
 
 # Function to clone the llama.cpp repository
 clone_repository() {
-    if is_jupyter; then
-            git clone https://github.com/ggerganov/llama.cpp.git /content/Ollama-Companion/; then
+    if $IS_JUPYTER; then
+        mkdir -p /content/Ollama-Companion
+        if git clone https://github.com/ggerganov/llama.cpp.git /content/Ollama-Companion/llama.cpp; then
             echo "Repository cloned successfully into Jupyter environment."
         else
             echo "Failed to clone repository into Jupyter environment."
@@ -181,9 +189,24 @@ clone_repository() {
     return 0
 }
 
+
+install_python_requirements() {
+    local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "Pyyaml" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
+
+    for package in "${required_packages[@]}"; do
+        if pip install "$package"; then
+            echo "$package installed successfully."
+        else
+            echo "Failed to install $package."
+            return 1
+        fi
+    done
+
+    echo "All required Python packages installed successfully."
+    return 0
+}
 build_llama_cpp() {
-    local os=$(detect_os)
-    if [ "$os" == "jupyter" ]; then
+    if $IS_JUPYTER; then
         # Jupyter Notebook specific build steps
         if [ -d "/content/Ollama-Companion/llama.cpp" ]; then
             if make -C /content/Ollama-Companion/llama.cpp; then
@@ -215,20 +238,25 @@ build_llama_cpp() {
     return 0
 }
 
-install_python_requirements() {
-    local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "Pyyaml" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
-
-    for package in "${required_packages[@]}"; do
-        if pip install "$package"; then
-            echo "$package installed successfully."
-        else
-            echo "Failed to install $package."
-            return 1
-        fi
-    done
-
-    echo "All required Python packages installed successfully."
-    return 0
+install_ollama() {
+    if $IS_JUPYTER; then
+        mkdir -p /content/Ollama-Companion
+        curl https://ollama.ai/install.sh > /content/Ollama-Companion/ollama_install.sh
+        chmod +x /content/Ollama-Companion/ollama_install.sh
+        /content/Ollama-Companion/ollama_install.sh
+        echo "Ollama installed in Jupyter environment."
+    else
+        read -p "Do you want to install Ollama on this host? (y/n) " answer
+        case $answer in
+            [Yy]* )
+                curl https://ollama.ai/install.sh | sh
+                echo "Ollama installed on this host."
+                ;;
+            * )
+                echo "Ollama installation skipped."
+                ;;
+        esac
+    fi
 }
 
 # Function to run the key_generation script
@@ -246,7 +274,6 @@ run_key_generation() {
     return 0
 }
 
-# Main script execution
 main() {
     local os=$(detect_os)
 
@@ -263,10 +290,10 @@ main() {
     install_docker "$os" && configure_docker "$os"
     install_packages "$os"
     clone_repository
-    build_llama_cpp "$os"
+    build_llama_cpp
     install_python_requirements
     change_file_ownership
-
+    install_ollama
     # Run the key generation script with the correct path
     run_key_generation "$(dirname "$(realpath "$0")")"
 
