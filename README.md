@@ -158,7 +158,7 @@ After completing these steps, your uploaded models will be accessible at `https:
 ## Try Ollama-Companion
 Try ollama Companion deployed on google Colab, with our Colab Notebooks and deploy a instance within minutes.
 
-
+[Deploy Ollama quick in the cloud for free with this notebook ](https://github.com/Luxadevi/Ollama-Colab-Integration/blob/main/Ollama_ColabV4.ipynb)
 
 
 ### Core Features
