@@ -16,7 +16,7 @@ Transitioning from Gradio to Streamlit necessitated the development of new tunne
 Explore our Colab Integration to set up the companion within minutes and obtain a public-facing URL.
 
 Interact with Ollama API without typing commands and using a interface to manage your models.
-
+Run Ollama or connect to a client an use this WebUI to manage.
 ### How to Run
 
 Clone the repository:
