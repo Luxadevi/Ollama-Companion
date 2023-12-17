@@ -2,7 +2,6 @@ from time import time
 from flask import Flask, request, Response
 import requests
 from flask_cloudflared import run_with_cloudflared
-import gradio as gr
 from threading import Thread
 import sys
 import os
