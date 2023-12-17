@@ -220,7 +220,7 @@ main() {
         echo "Python 3.10 or later is required but not installed. Exiting."
         exit 1
     fi
-
+    install_pip
     install_docker
     install_packages
     clone_and_build_llama_cpp
