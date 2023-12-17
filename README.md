@@ -155,6 +155,12 @@ Use this section to securely upload your converted models to Hugging Face.
 
 After completing these steps, your uploaded models will be accessible at `https://huggingface.co/your-username/your-repo-name`.
 
+## Try Ollama-Companion
+Try ollama Companion deployed on google Colab, with our Colab Notebooks and deploy a instance within minutes.
+
+
+
+
 ### Core Features
 
 #### Streamlit-Powered Interface
