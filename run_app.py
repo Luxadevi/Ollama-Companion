@@ -20,7 +20,7 @@ def run_streamlit():
 
 def run_ollama():
     print("Starting Ollama...")
-    subprocess.call(['python3', '/content/Ollama-Companion/tools/Ollama.py'])
+    subprocess.call(['python3', '/content/Ollama-Companion/tools/ollama.py'])
 
 def main():
     tunnel_thread = threading.Thread(target=start_tunnel)
