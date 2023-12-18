@@ -43,7 +43,7 @@ python3 runn_app.py
 ```
 Starting the Companion on a local 127.0.0.1:8501 instance run
 ```
-streamlit run main.py 
+streamlit run Homepage.py
 ```
 
 **Note**: Windows support is currently unavailable for running Ollama, but you can run the companion from a Windows client for local quantization and management. You can also manage a remote Ollama instance by setting the Ollama endpoint in the UI.

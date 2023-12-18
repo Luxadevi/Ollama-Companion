@@ -27,7 +27,7 @@ scheduler.start()
 # Initialize queue and start a background thread for processing commands
 
 @st.cache_data
-def find_llama_models_dir(start_path, max_up=3, max_down=2):
+def find_llama_models_dir(start_path, max_up=4, max_down=3):
     def search_upwards(path, depth):
         if depth > max_up:
             return None
@@ -48,22 +48,22 @@ def find_llama_models_dir(start_path, max_up=3, max_down=2):
         return None
 
     # Search upwards
-    found_path = search_upwards(start_path, 0)
+    found_path = search_upwards(start_path, 4)
     if found_path:
         return found_path  # Return the found 'llama.cpp/models' directory
 
     # Search downwards
-    return search_downwards(start_path, 0)
+    return search_downwards(start_path, 3)
 
 
 # Use the function to find the base directory
-current_path = Path(__file__).resolve()
-base_dir = find_llama_models_dir(current_path)
+# current_path = Path(__file__).resolve()
+# base_dir = find_llama_models_dir(current_path)
 
-if not base_dir:
-    print("Error: llama.cpp/models/ directory not found.")
-else:
-    print("llama.cpp/models/ found at:", base_dir)
+# if not base_dir:
+#     print("Error: llama.cpp/models/ directory not found.")
+# else:
+#     print("llama.cpp/models/ found at:", base_dir)
 
 
 
@@ -118,10 +118,6 @@ def trigger_command(model_folder, options, use_docker):
             command_queue.put((model_folder, option.lower(), use_docker))
     return "Commands queued. They will run sequentially."
 
-# Set up APScheduler
-scheduler = BackgroundScheduler()
-scheduler.add_job(process_queue, 'interval', seconds=10)
-scheduler.start()
 
 
 # Old UI code
