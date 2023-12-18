@@ -1,11 +1,12 @@
 # modelfile_templater.py
 import streamlit as st
 import requests
-from shared import shared
+from modules.shared import shared
 def load_model_data():
     url = "https://raw.githubusercontent.com/Luxadevi/Ollama-Colab-Integration/main/models.json"
     response = requests.get(url)
     return response.json()
+
 
 def show_model_dropdowns():
     json_data = load_model_data()
@@ -32,22 +33,6 @@ def show_parameter_sliders():
 def show_model_name_input(key):
     return st.text_input("Model Name", key=key)
 
-def display_model_creator():
-    st.title("Model File Creator")
-    selected_provider, selected_model = show_model_dropdowns()
-    model_name = show_model_name_input("model_name_creator")
-    additional_modelfile_content = st.text_area("Additional Modelfile Content", key="modelfile_content_creator")
-    option_system_prompt = st.text_area("Optional System Prompt", key="option_system_prompt_creator")
-
-    stop_sequences = manage_stop_sequences()
-    parameters = show_parameter_sliders()
-    print_payload_details = st.checkbox("Print Payload Details on Webpage")
-    submit_button = st.button("Build and Deploy Model")
-
-    if submit_button and model_name:
-        modelfile_content = construct_modelfile_content(selected_provider, selected_model, additional_modelfile_content, option_system_prompt, stop_sequences, parameters)
-        result = create_model(model_name, modelfile_content, print_payload_details)
-        st.write(result)
 
 def manage_stop_sequences():
     stop_sequences = []
@@ -70,6 +55,8 @@ def construct_modelfile_content(provider, model, additional_content, system_prom
         if value != default_value:
             modelfile_content += f"\nPARAMETER {param} {value}"
     return modelfile_content
+
+
 def create_model(name, modelfile_content, print_payload):
     try:
         data = {"name": name, "modelfile": modelfile_content}
@@ -90,3 +77,25 @@ def create_model(name, modelfile_content, print_payload):
                 return f"Request failed: {response.text}"
     except Exception as e:
         return f"Error creating model: {str(e)}"
+
+
+
+st.title("Model File Creator")
+selected_provider, selected_model = show_model_dropdowns()
+model_name = show_model_name_input("model_name_creator")
+additional_modelfile_content = st.text_area("Additional Modelfile Content", key="modelfile_content_creator")
+option_system_prompt = st.text_area("Optional System Prompt", key="option_system_prompt_creator")
+
+stop_sequences = manage_stop_sequences()
+parameters = show_parameter_sliders()
+print_payload_details = st.checkbox("Print Payload Details on Webpage")
+submit_button = st.button("Build and Deploy Model")
+
+if submit_button and model_name:
+    modelfile_content = construct_modelfile_content(selected_provider, selected_model, additional_modelfile_content, option_system_prompt, stop_sequences, parameters)
+    result = create_model(model_name, modelfile_content, print_payload_details)
+    st.write(result)
+elif not model_name:  # Check if model_name is not provided
+    st.write("Pick a modelname to continue")
+
+

@@ -1,9 +1,11 @@
 # api_module.py
 import streamlit as st
 import requests
-from shared import shared
+from modules.shared import shared
 import json
+
 api_url = shared['api_endpoint']['url']
+
 def get_json(url):
     try:
         response = requests.get(url)
@@ -13,6 +15,13 @@ def get_json(url):
         return str(e)
 
 
+def fetch_models(api_url):
+    json_data = get_json(f"{api_url}/api/tags")
+    if isinstance(json_data, dict) and 'models' in json_data:
+        return [model['name'] for model in json_data['models']]
+    else:
+        st.error("Invalid JSON structure or error in fetching data")
+        return None
 
 def show_model_details(model_name, api_url):
     # Check if the model name includes ":latest" and remove it

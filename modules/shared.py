@@ -7,7 +7,24 @@ shared = {
         "q4_0", "q4_1", "q5_0", "q5_1", "q2_K", "q3_K", "q3_K_S", "q3_K_M", "q3_K_L",
         "q4_K", "q4_K_S", "q4_K_M", "q5_K", "q5_K_S", "q5_K_M", "q6_K", "q8_0", "F16", "F32"
     ],
-    'api_endpoint': {'url': 'http://127.0.0.1:11434'},
+    'api_endpoint': {'url': 'http://192.168.1.130:11434'},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -44,7 +61,7 @@ shared = {
 modules_to_import = {
     "model_selector": ["show_model_selector",  "get_json"],
     "modelfile_templater": ["show_model_dropdowns", "show_parameter_sliders", "show_model_name_input", "display_model_creator", "show_model_name_input"],
-    "ollama_api_configurator": ["show_ollama_api_configurator"],
+    # "ollama_api_configurator": ["show_ollama_api_configurator"],
     "litellm_proxy": ["show_litellm_proxy_page"],
     "public_endpoint": ["show_public_endpoint_page"],
     "downloading_models": ["show_downloading_models_page"],
@@ -52,6 +69,5 @@ modules_to_import = {
     "Medium_Precision_Quantization": ["show_medium_precision_quantization_page"],
     "UploadtoHuggingface": ["show_model_management_page"],
     "token_encrypt": ["show_token_encrypt_page"],
-    "chat_interface": ["show_chat_interface"]
-   
+    "chat_interface": ["show_chat_interface"],
 }

@@ -51,6 +51,7 @@ def start_endpoint_and_get_last_2_lines():
         return result
     except Exception as e:
         return f"Error: {str(e)}"
+print("jezuigt")
 
 def kill_endpoint():
     try:
@@ -63,43 +64,46 @@ def kill_endpoint():
     except Exception as e:
         return f"Error: {str(e)}"
     
-def show_public_endpoint_page():
-    st.title("Public Endpoint Management")
+    
+# Old UI drawing 
+# def show_public_endpoint_page():
+st.title("Public Endpoint Management")
 
-    if st.button("Start Endpoint"):
-        result = start_endpoint_and_get_last_2_lines()
-        
-        # Check if result contains URLs and convert them to Markdown links
-        if "Running on" in result:
-            lines = result.split('\n')
-            for i, line in enumerate(lines):
-                if line.startswith("* Running on"):
-                    url = line.split()[3]
-                    lines[i] = f"* Running on [link]({url})"
-                elif line.startswith("* Traffic stats available on"):
-                    url = line.split()[4]
-                    lines[i] = f"* Traffic stats available on [link]({url})"
-            result = '\n'.join(lines)
-        
-        # Display the result as Markdown
-        st.markdown(result)
+if st.button("Start Endpoint"):
+    result = start_endpoint_and_get_last_2_lines()
+    
+    # Check if result contains URLs and convert them to Markdown links
+    if "Running on" in result:
+        lines = result.split('\n')
+        for i, line in enumerate(lines):
+            if line.startswith("* Running on"):
+                url = line.split()[3]
+                lines[i] = f"* Running on [link]({url})"
+            elif line.startswith("* Traffic stats available on"):
+                url = line.split()[4]
+                lines[i] = f"* Traffic stats available on [link]({url})"
+        result = '\n'.join(lines)
+    
+    # Display the result as Markdown
+    st.markdown(result)
 
-    if st.button("Kill Endpoint"):
-        result = kill_endpoint()
-        st.text(result)
+if st.button("Kill Endpoint"):
+    result = kill_endpoint()
+    st.text(result)
 
-    with st.expander("Public Endpoint Information"):
-        st.markdown("""
-        **Public Endpoint Management**
+with st.expander("Public Endpoint Information"):
+    st.markdown("""
+    **Public Endpoint Management**
 
-        This section is dedicated to managing and accessing the public endpoint for OpenAI and Ollama APIs.
+    This section is dedicated to managing and accessing the public endpoint for OpenAI and Ollama APIs.
 
-        **Public Endpoint Controls**
+    **Public Endpoint Controls**
 
-        - **Start Public Endpoint:** Use this button to start the public endpoint. The endpoint will be accessible for interfacing with the OpenAI or Ollama API.
-        - **Read Public Endpoint Log:** This section will display the last few lines of the log, providing insights into the endpoint's operation.
-        - **Access Public Endpoint:** Once the endpoint is running, it will be accessible at specific URLs provided in the log output.
-        - **Kill Public Endpoint:** If the endpoint is running and needs to be stopped, use this button to terminate it.
+    - **Start Public Endpoint:** Use this button to start the public endpoint. The endpoint will be accessible for interfacing with the OpenAI or Ollama API.
+    - **Read Public Endpoint Log:** This section will display the last few lines of the log, providing insights into the endpoint's operation.
+    - **Access Public Endpoint:** Once the endpoint is running, it will be accessible at specific URLs provided in the log output.
+    - **Kill Public Endpoint:** If the endpoint is running and needs to be stopped, use this button to terminate it.
 
-        Please be patient when starting or stopping the public endpoint as these actions may take some time to complete.
-        """)
+    Please be patient when starting or stopping the public endpoint as these actions may take some time to complete.
+    """)
+print("HHEEE")

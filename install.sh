@@ -11,20 +11,21 @@ install_pip() {
     case "$os" in
         debian | redhat | arch)
             sudo apt-get update && sudo apt-get install -y python3-pip
-             ;;
+            ;;
         macos)
             curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
             python3 get-pip.py --user
             rm get-pip.py
-             ;;
-         *)
+            ;;
+        *)
             echo "Unsupported OS for pip installation."
             return 1
-             ;;
+            ;;
     esac
     echo "Pip installed successfully."
     return 0
 }
+
 # Function to check if a specific version of Python is installed
 is_python_installed() {
     if is_command_installed python3; then
@@ -76,7 +77,7 @@ install_docker() {
 
 # Function to install essential packages
 install_packages() {
-    local packages=("gcc" "make" "aria2" "git" "pciutils" "pip" "pip3")
+    local packages=("gcc" "make" "aria2" "git" "pciutils")
     local install_needed=false
 
     for package in "${packages[@]}"; do
@@ -135,11 +136,12 @@ detect_os() {
     return 0
 }
 
+# Function to install Python requirements
 install_python_requirements() {
-    local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "Pyyaml" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
+    local required_packages=("streamlit" "requests" "flask" "flask-cloudflared" "httpx" "litellm" "huggingface_hub" "asyncio" "PyYAML" "httpx" "APScheduler" "cryptography" "pycloudflared" "numpy==1.24.4" "sentencepiece==0.1.98" "transformers>=4.34.0" "gguf>=0.1.0" "protobuf>=4.21.0" "torch==2.1.1" "transformers==4.35.2")
 
     for package in "${required_packages[@]}"; do
-        if pip install "$package"; then
+        if pip3 install "$package"; then
             echo "$package installed successfully."
         else
             echo "Failed to install $package."
@@ -180,6 +182,7 @@ clone_and_build_llama_cpp() {
     return 0
 }
 
+# Function to install Ollama
 install_ollama() {
     read -p "Do you want to install Ollama on this host? (y/n) " answer
     case $answer in
@@ -208,6 +211,7 @@ run_key_generation() {
     return 0
 }
 
+# Main function
 main() {
     local os=$(detect_os)
 
@@ -220,16 +224,17 @@ main() {
         echo "Python 3.10 or later is required but not installed. Exiting."
         exit 1
     fi
+
     install_pip
     install_docker
     install_packages
     clone_and_build_llama_cpp
     install_python_requirements
-    print("Install Ollama on mac via the broser on https://ollama.ai/download/mac ")
     install_ollama
     run_key_generation
 
     echo "Installation complete."
 }
 
+# Call the main function
 main
