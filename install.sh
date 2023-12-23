@@ -1,4 +1,5 @@
 #!/bin/bash
+# Install look if user has python env or conda installed
 # Adding virtual env options
 # Function to check if a command exists in executable paths
 is_command_installed() {
