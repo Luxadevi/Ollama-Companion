@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Adding virtual env options
 # Function to check if a command exists in executable paths
 is_command_installed() {
     command -v "$1" >/dev/null 2>&1
