@@ -52,7 +52,7 @@ def openai_proxy(path):
 
         resp = requests.request(
             method=request.method,
-            url=url,
+            url=new_url,
             headers={key: value for (key, value) in request.headers if key != 'Host'},
             data=request.get_data(),
             cookies=request.cookies,
