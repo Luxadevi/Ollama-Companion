@@ -9,6 +9,8 @@ from pathlib import Path  # Import pathlib
 # Initialize session state for selected_model
 if 'selected_model' not in st.session_state:
     st.session_state['selected_model'] = ''
+if 'selected_files' not in st.session_state:
+    st.session_state['selected_files'] = []
 
 # Define a function to search for the llama.cpp directory
 def find_llama_cpp_dir():
@@ -156,11 +158,14 @@ else:
 # Upload button
 if st.button("Upload Selected Files") and hf_token:
     upload_message = upload_files_to_repo(
-        hf_token, 
-        models_dir, 
-        repo_name, 
-        st.session_state.selected_files, 
-        readme_content
+        token=hf_token, 
+        models_dir=models_dir, 
+        repo_name=repo_name, 
+        files_to_upload=selected_files, 
+        readme_content=readme_content,
+        high_precision_files=high_precision_files,
+        medium_precision_files=medium_precision_files,
+        selected_model=selected_model
     )
     st.info(upload_message)
 
