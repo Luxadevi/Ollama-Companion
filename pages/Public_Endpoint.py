@@ -51,7 +51,6 @@ def start_endpoint_and_get_last_2_lines():
         return result
     except Exception as e:
         return f"Error: {str(e)}"
-print("jezuigt")
 
 def kill_endpoint():
     try:
@@ -106,4 +105,3 @@ with st.expander("Public Endpoint Information"):
 
     Please be patient when starting or stopping the public endpoint as these actions may take some time to complete.
     """)
-print("HHEEE")
