@@ -13,3 +13,4 @@ cryptography
 pycloudflared
 sentencepiece
 transformers
+litellm[proxy]
