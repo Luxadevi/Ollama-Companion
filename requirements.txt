@@ -11,3 +11,5 @@ httpx
 APScheduler
 cryptography
 pycloudflared
+sentencepiece
+transformers
