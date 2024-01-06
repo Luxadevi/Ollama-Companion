@@ -84,7 +84,6 @@ def get_files_from_repo(url, repo_name):
 st.title("Model Downloader")
 
 model_name = st.text_input("Download PyTorch models from Huggingface", "Use the HuggingfaceUsername/Modelname")
-instruction = st.text("Instructions: For example")
 if st.button("Get File List"):
     _, file_links = get_files_from_repo(construct_hf_repo_url(model_name), model_name)
     if file_links:
