@@ -69,6 +69,7 @@ def find_llama_models_dir(start_path, max_up=4, max_down=3):
 
 
 def run_command(model_folder, out_type, use_docker):
+    base_dir = Path("llama.cpp/models")
     input_dir = base_dir / model_folder
     target_dir = input_dir / "High-Precision-Quantization"
     output_file = f"{model_folder}-{out_type}.GGUF"
