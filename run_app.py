@@ -14,16 +14,32 @@ def start_tunnel():
             if url:
                 print(f"Tunnel URL: {url.group()}")
                 break
+               
+
 
 def run_streamlit():
     print("Starting Streamlit App...")
     try:
-        # Try to run Streamlit from the Jupyter environment path
-        subprocess.call(['streamlit', 'run', 'Homepage.py'])
+        subprocess.check_call(['streamlit', 'run', './Homepage.py'])
+    except subprocess.CalledProcessError as e:
+        print(f"Error running Streamlit: {e}")
     except FileNotFoundError:
-        # If the file is not found, run Streamlit from the current directory
-        subprocess.call(['streamlit', 'run', 'Homepage.py'])
+        print("Streamlit file not found, checking current directory")
+        try:
+            subprocess.check_call(['streamlit', 'run', './Homepage.py'])
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Streamlit from current directory: {e}")
 
 def main():
-    start_tunnel()
-    run_streamlit()
+    try:
+        start_tunnel()
+    except Exception as e:
+        print(f"Error starting tunnel: {e}")
+
+    try:
+        run_streamlit()
+    except Exception as e:
+        print(f"Error running Streamlit: {e}")
+
+if __name__ == "__main__":
+    main()
