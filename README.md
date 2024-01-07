@@ -19,6 +19,10 @@ Interact with Ollama API without typing commands and using a interface to manage
 Run Ollama or connect to a client an use this WebUI to manage.
 ### How to Run
 
+### All-in-one installer ###
+ 
+
+
 Clone the repository:
 
 
@@ -33,7 +37,6 @@ sudo chmod +x install.sh
 ```
 ./install.sh
 ```
-**Do not start the installer with sudo but provide your password if neccesairy**
 
 ## Starting Ollama-Companion
 To start the Companion with a public url for example when you want to share the webpage with others or using this on a service like Colab.

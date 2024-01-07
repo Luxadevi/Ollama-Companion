@@ -177,6 +177,7 @@ install_minimal() {
     activate_venv
     pip_dependencies
     echo "$END_MESSAGE" 
+    run_start_script
 }
 
 # Medium installation function
@@ -190,6 +191,7 @@ install_medium() {
     activate_venv
     pip_dependencies
     echo "$END_MESSAGE" 
+    run_start_script
 }
 
 # Large installation function
@@ -205,6 +207,7 @@ install_large() {
     pip install torch 
     install_ollama
     echo "$END_MESSAGE"
+    run_start_script
 }
 
 # Interactive installation function
@@ -228,9 +231,17 @@ install_interactive() {
 	echo "Install the needed python dependencies from the requirements.txt with pip install -r requirements.txt"
 	echo "Recommended to install these python libraries in a virtual enviroment"
     fi
+   
+    # Ask the user if they want to start Ollama Companion directly
+    read -p "Do you want to start Ollama Companion directly? (yes/no) " start_now_response
+    if [[ $start_now_response == "yes" ]]; then
+        run_start_script
+    else
+        echo "You can run start.sh from the ollama-companion directory to get started."
+    fi
     echo "$END_MESSAGE"
-}
 
+}
 # Main execution logic
 main() {
     # Detect the OS
