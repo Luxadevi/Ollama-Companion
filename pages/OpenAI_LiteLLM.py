@@ -1,5 +1,5 @@
 import subprocess
-import threading
+import multiprocessing
 import streamlit as st
 import requests
 import yaml
@@ -8,10 +8,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import socket
 import time
 from pathlib import Path
-scheduler = None  # Define it globally if it's used outside show_litellm_proxy_page
 
 
-# Sets folders for the neccesairy files
+# Sets folders for the neccesairy files 
 def initialize_directories():
     current_dir = Path(__file__).parent
     root_dir = current_dir.parent  # Set the root directory one level up
@@ -41,7 +40,6 @@ def kill_process_on_port(port):
         subprocess.run(["fuser", "-k", f"{port}/tcp"])
     except Exception as e:
         print(f"Error killing process on port {port}: {e}")
-@st.cache_data
 def start_litellm_proxy(log_file_path, config_file_path, append_to_log=False):
     def run_process():
         with open(log_file_path, "a" if append_to_log else "w") as log_file:
@@ -50,11 +48,10 @@ def start_litellm_proxy(log_file_path, config_file_path, append_to_log=False):
                 stdout=log_file,
                 stderr=subprocess.STDOUT
             )
-            process.communicate()
-            return("succes")
-
-    litellm_thread = threading.Thread(target=run_process, daemon=True)
-    litellm_thread.start()
+            process.wait()
+    
+    litellm_process = multiprocessing.Process(target=run_process)
+    litellm_process.start()
 
 
 def restart_litellm_proxy(log_file_path, config_file_path):
@@ -68,9 +65,8 @@ def restart_litellm_proxy(log_file_path, config_file_path):
     time.sleep(2)
     # Restart the proxy (appends to the existing log file)
     start_litellm_proxy(log_file_path, config_file_path, append_to_log=True)
-
 # Curls the OpenAI proxy and updates the logfile
-# 
+#
 def test_litellm_proxy():
     try:
         result = subprocess.run(
@@ -199,11 +195,11 @@ config_file_path = config_dir / 'config.yaml'
 st.title('OPENAI API Proxy')
 st.text("Start Litellm With the button below to convert Ollama traffic to Openai Traffic")
 # Define the scheduler variable outside the if statement
-scheduler = None
 
 # Button to start and restart the LiteLLM Proxy
 if st.button('Start LiteLLM'):
-    threading.Thread(target=lambda: restart_litellm_proxy(log_file_path, config_file_path), daemon=True).start()
+    litellm_process = multiprocessing.Process(target=lambda: restart_litellm_proxy(log_file_path, config_file_path))
+    litellm_process.start()
     st.success("LiteLLM Proxy start and restart sequence initiated")
 
 if st.button('Read LiteLLM Log'):
