@@ -1,7 +1,6 @@
 #!/bin/bash
 # this is the Ollama-Companion bash installer for Linux 
-# This installer is meant to be ran from a direct download curl from 
-# the single installer.
+# This installer is meant to be ran from a direct download or from the ollama-companion repo
 
 
 
