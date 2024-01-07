@@ -1,6 +1,8 @@
 # modelfile_templater.py
 import streamlit as st
 import requests
+from pathlib import Path
+import os
 from modules.shared import shared
 def load_model_data():
     url = "https://raw.githubusercontent.com/Luxadevi/Ollama-Colab-Integration/main/models.json"
@@ -43,6 +45,13 @@ def manage_stop_sequences():
         else:
             break  # Stop adding more inputs once an empty one is found
     return stop_sequences
+
+
+#Search for local converted/stored models.
+def fetch_gguf_files(directory):
+    path = Path(directory)
+    gguf_files = [str(file) for file in path.rglob('*.gguf')]
+    return gguf_files
 
 def construct_modelfile_content(provider, model, additional_content, system_prompt, stop_seqs, params):
     modelfile_content = f"FROM {provider}:{model}\n{additional_content}"

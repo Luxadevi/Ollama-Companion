@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run this script with the arguments -lan or -local to start the companion without
 # Generating a Public Url.
-# Launch virtual environment
+## Launch virtual environment
 source companion_venv/bin/activate
 echo "started virtual env"
 
