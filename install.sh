@@ -150,6 +150,12 @@ install_ollama() {
             ;;
     esac
 }
+# Function to instal Ollama headless
+install_ollama_headless(){
+    curl http://ollama.ai/install.sh | sh
+    echo "Ollama Installed"
+}
+
 
 clean_build_llama_cpp() {
     echo "Do you want to clean build llama.cpp? (yes/no)"
@@ -205,7 +211,7 @@ run_start_script(){
 
 # END message when the installation is completed
 
-END_MESSAGE="Ollama successfully installed, you can launch next time with the start.sh script. Ollama-companion will autolaunch on port 8051 and defaults to making a public facing url for your companion. If you only want to run Ollama-companion locally: run the start.sh script with '-local' or '-lan' arguments."
+END_MESSAGE="Companion successfully installed, you can launch next time with the start.sh script. Ollama-companion will autolaunch on port 8051 and defaults to making a public facing url for your companion. If you only want to run Ollama-companion locally: run the start.sh script with '-local' or '-lan' arguments."
 
 
 ## Installation-types
@@ -347,7 +353,7 @@ main() {
     # Install Ollama if the flag is set
     if [[ $install_ollama_flag -eq 1 ]]; then
         echo "Installing Ollama..."
-        install_ollama
+        install_ollama_headless
     fi
 
     # Run start script if the block flag is not set
