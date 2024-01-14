@@ -1,6 +1,13 @@
 #!/bin/bash
 # Run this script with the arguments -lan or -local to start the companion without
-# Generating a Public Url.
+# Generating a Public URL.
+
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Change to the script's directory
+cd "$SCRIPT_DIR"
+
 # Launch virtual environment
 source companion_venv/bin/activate
 echo "started virtual env"
