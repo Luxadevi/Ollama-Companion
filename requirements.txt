@@ -14,5 +14,3 @@ pycloudflared
 sentencepiece
 transformers
 litellm[proxy]
-httpx
-asyncio
