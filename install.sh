@@ -152,7 +152,7 @@ install_ollama() {
 }
 # Function to instal Ollama headless
 install_ollama_headless(){
-    curl http://ollama.ai/install.sh | sh
+    curl https://ollama.ai/install.sh | sh
     echo "Ollama Installed"
 }
 
