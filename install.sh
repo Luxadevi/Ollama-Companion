@@ -5,9 +5,11 @@
 
 
 # These packages are needed to install or use ollama/companion.
-COMMON_PACKAGES="aria2 make gcc git pciutils curl" # Replace with actual package names
+COMMON_PACKAGES="aria2 make gcc git pciutils curl" 
+VERSION="4"
+LOGFILE="logs/installation.log"
 
-# Function to install packages
+# Function to install packages per distrobution type.
 install_packages() {
     if [[ "$1" == "Ubuntu" || "$1" == "Debian" ]]; then
         sudo apt update
@@ -85,13 +87,42 @@ if [ -f /etc/os-release ]; then
     OS=$NAME
 fi
 
+# Function to read the installation type from the log file
+read_installation_type() {
+    if [ -f "$LOGFILE" ]; then
+        local installed_type=$(sed -n '2p' "$LOGFILE")
+        echo $installed_type
+    else
+        echo "none"
+    fi
+}
 
+# Function to determine if an upgrade is needed
+is_upgrade_needed() {
+    local current_installation=$(read_installation_type)
+    local new_installation=$1
+
+    case $current_installation in
+        minimal)
+            [[ "$new_installation" == "standard" || "$new_installation" == "large" ]]
+            ;;
+        standard)
+            [[ "$new_installation" == "large" ]]
+            ;;
+        interactive)
+            return 0 # Always rerun interactive
+            ;;
+        *)
+            return 1 # No upgrade needed or unrecognized type
+            ;;
+    esac
+}
 # Function to clone ollama-companion repository
 clone_ollama_companion() {
     current_dir=$(basename "$PWD")
-    if [ "$current_dir" != "ollama-companion" ]; then
-        git clone https://github.com/luxadevi/ollama-companion.git
-        cd ollama-companion
+    if [ "$current_dir" != "Ollama-Companion" ]; then
+        git clone https://github.com/luxadevi/Ollama-Companion.git
+        cd Ollama-Companion
         echo "Cloned ollama-companion and changed directory to ollama-companion"
     else
         echo "Already inside ollama-companion directory, skipping clone."
@@ -131,7 +162,7 @@ clean_build_llama_cpp() {
         echo "Skipping clean build of llama.cpp."
     fi
 }
-
+# Function to help you install python3.10 interactively
 interactive_check_python() {
     PYTHON_VERSION=$(python3 --version 2>/dev/null | grep -oP '(?<=Python )\d+\.\d+')
     if [[ $PYTHON_VERSION < 3.10 ]]; then
@@ -158,6 +189,20 @@ interactive_check_python() {
     fi
 }
 
+# Writes a logfile with the current installed version number and installation type
+write_to_log() {
+    local installation_type=$1
+    echo "Writing to log file..."
+    echo "$VERSION" > "$LOGFILE"
+    echo "$installation_type" >> "$LOGFILE"
+}
+
+run_start_script(){
+    chmod +x start.sh
+    ./start.sh
+}
+
+
 # END message when the installation is completed
 
 END_MESSAGE="Ollama successfully installed, you can launch next time with the start.sh script. Ollama-companion will autolaunch on port 8051 and defaults to making a public facing url for your companion. If you only want to run Ollama-companion locally: run the start.sh script with '-local' or '-lan' arguments."
@@ -176,8 +221,8 @@ install_minimal() {
     create_python_venv
     activate_venv
     pip_dependencies
+    write_to_log "minimal"
     echo "$END_MESSAGE" 
-    run_start_script
 }
 
 # Medium installation function
@@ -190,8 +235,8 @@ install_medium() {
     create_python_venv
     activate_venv
     pip_dependencies
+    write_to_log "standard"
     echo "$END_MESSAGE" 
-    run_start_script
 }
 
 # Large installation function
@@ -206,8 +251,8 @@ install_large() {
     pip_dependencies
     pip install torch 
     install_ollama
+    write_to_log "large"
     echo "$END_MESSAGE"
-    run_start_script
 }
 
 # Interactive installation function
@@ -225,6 +270,7 @@ install_interactive() {
         activate_venv
         pip_dependencies
         pip install torch
+	write_to_log "interactive"
         echo "Virtual environment set up and dependencies installed."
     else
         echo "Skipping virtual environment setup and Python dependency installation."
@@ -242,7 +288,7 @@ install_interactive() {
     echo "$END_MESSAGE"
 
 }
-# Main execution logic
+
 main() {
     # Detect the OS
     OS="Unknown"
@@ -251,20 +297,63 @@ main() {
         OS=$NAME
     fi
 
-    case $1 in
-        -minimal|-min)
+    local install_ollama_flag=0
+    local block_start_script_flag=0
+    local requested_installation="standard" # Set default installation to standard
+
+    # Parse all arguments
+    for arg in "$@"; do
+        case $arg in
+            -minimal|-min)
+                requested_installation="minimal"
+                ;;
+            -large|-l)
+                requested_installation="large"
+                ;;
+            -interactive|-i)
+                requested_installation="interactive"
+                ;;
+            -ollama)
+                install_ollama_flag=1
+                ;;
+            -b|-block)
+                block_start_script_flag=1
+                ;;
+        esac
+    done
+
+    # Check if an upgrade is needed and perform installation
+    if is_upgrade_needed $requested_installation; then
+        echo "Upgrade needed. Installing $requested_installation version."
+    else
+        echo "Proceeding with $requested_installation installation."
+    fi
+
+    case $requested_installation in
+        minimal)
             install_minimal
             ;;
-        -large|-l)
-            install_large
-            ;;
-        -interactive|-i)
-            install_interactive
-            ;;
-        *)
+        standard)
             install_medium
             ;;
+        large)
+            install_large
+            ;;
+        interactive)
+            install_interactive
+            ;;
     esac
+
+    # Install Ollama if the flag is set
+    if [[ $install_ollama_flag -eq 1 ]]; then
+        echo "Installing Ollama..."
+        install_ollama
+    fi
+
+    # Run start script if the block flag is not set
+    if [[ $block_start_script_flag -eq 0 ]]; then
+        run_start_script
+    fi
 }
 
 # Call the main function with all passed arguments
