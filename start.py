@@ -3,6 +3,7 @@ import threading
 import multiprocessing
 import sys
 import os
+import cProfile
 
 def start_tunnel():
     print("Starting tunnel...")
