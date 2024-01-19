@@ -13,3 +13,4 @@ pycloudflared
 sentencepiece
 transformers
 litellm[proxy]
+st-pages
