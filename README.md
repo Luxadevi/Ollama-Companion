@@ -42,7 +42,7 @@ sudo chmod +x install.sh
 To start the Companion with a public url for example when you want to share the webpage with others or using this on a service like Colab.
 **Use the command.**
 ```
-python3 runn_app.py
+$ ./start.sh
 ```
 Starting the Companion on a local 127.0.0.1:8501 instance run
 ```
