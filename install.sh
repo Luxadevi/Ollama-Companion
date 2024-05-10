@@ -261,6 +261,9 @@ install_large() {
 # Colab installation function
 install_colab() {
     echo "Starting Colab installation..."
+    echo "This uses pre-compiled llama.cpp bianries"
+    echo "To freshly compile a new version use colam_compile"
+    echo "Refer back to llama.cpp Github Repository"
     install_packages "$OS"
     clone_ollama_companion
     pip_dependencies
@@ -274,6 +277,7 @@ install_colab() {
 # Colab compile installation function
 install_colab_compile() {
     echo "Starting Colab compile installation..."
+    rm -r /content/Ollama-Companion/llama.cpp
     install_packages "$OS"
     check_python "$OS"
     clone_ollama_companion
