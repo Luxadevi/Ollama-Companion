@@ -21,14 +21,13 @@ start_locally() {
     echo "Starting Ollama-Companion locally on port 8501"
     streamlit run Homepage.py
 }
-
 start_colab() {
     kill_existing_ollama
     pgrep -f '.*tunnel.*127\.0\.0\.1:8501.*' | xargs -r kill -9
     echo "Starting Ollama-Companion with a public URL"
     python3 run_tunnel.py &
     sleep 8
-    python3 "$SCRIPT_DIR/tools/ollama.py" &
+    python3 "$SCRIPT_DIR/tools/ollama.py" > /dev/null 2>&1 &
     echo "Starting Ollama"
     streamlit run Homepage.py
 }
