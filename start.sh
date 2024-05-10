@@ -8,23 +8,33 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Change to the script's directory
 cd "$SCRIPT_DIR"
 
+# Function to kill any existing Python process running `ollama.py`
+kill_existing_ollama() {
+    pgrep -f 'python3.*ollama\.py' | xargs -r kill -9
+    echo "Terminated existing Ollama processes"
+}
+
 # Launch virtual environment
 
 start_locally() {
+    kill_existing_ollama
     echo "Starting Ollama-Companion locally on port 8501"
     streamlit run Homepage.py
 }
 
 start_colab() {
+    kill_existing_ollama
     pgrep -f '.*tunnel.*127\.0\.0\.1:8501.*' | xargs -r kill -9
     echo "Starting Ollama-Companion with a public URL"
     python3 run_tunnel.py &
     sleep 8
     python3 "$SCRIPT_DIR/tools/ollama.py" &
+    echo "Starting Ollama"
     streamlit run Homepage.py
 }
 
 start_public() {
+    kill_existing_ollama
     pgrep -f '.*tunnel.*127\.0\.0\.1:8501.*' | xargs -r kill -9
     echo "Starting Ollama-Companion with a public URL"
     python3 run_tunnel.py &
