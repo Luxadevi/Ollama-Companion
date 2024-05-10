@@ -262,12 +262,12 @@ install_large() {
 install_colab() {
     echo "Starting Colab installation..."
     echo "This uses pre-compiled llama.cpp bianries"
-    echo "To freshly compile a new version use colam_compile"
+    echo "To freshly compile a new version use -colab_compile"
     echo "Refer back to llama.cpp Github Repository"
-    install_packages "$OS"
+    install_packages "$OS" > /dev/null
     clone_ollama_companion
-    pip_dependencies
-    pip install httpx
+    pip_dependencies > /dev/null
+    pip install httpx /dev/null
     wget https://huggingface.co/luxadev/llama.cpp_binaries/resolve/main/llama.cpp_latest.tar.gz
     tar -xzvf /content/llama.cpp_latest.tar.gz -C /content/Ollama-Companion/
     install_ollama_headless
