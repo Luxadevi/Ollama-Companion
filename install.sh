@@ -267,6 +267,7 @@ install_colab() {
     install_packages "$OS"
     clone_ollama_companion
     pip_dependencies
+    pip install httpx
     wget https://huggingface.co/luxadev/llama.cpp_binaries/resolve/main/llama.cpp_latest.tar.gz
     tar -xzvf /content/llama.cpp_latest.tar.gz -C /content/Ollama-Companion/
     install_ollama_headless
@@ -281,6 +282,7 @@ install_colab_compile() {
     install_packages "$OS"
     check_python "$OS"
     clone_ollama_companion
+    pip install httpx
     clone_and_make_llama_cpp
     pip_dependencies
     install_ollama_headless
