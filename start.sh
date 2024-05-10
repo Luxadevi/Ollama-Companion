@@ -15,7 +15,7 @@ start_locally() {
     streamlit run Homepage.py
 }
 
-start_public() {
+start_colab() {
     pgrep -f '.*tunnel.*127\.0\.0\.1:8501.*' | xargs -r kill -9
     echo "Starting Ollama-Companion with a public URL"
     python3 run_tunnel.py &
@@ -24,7 +24,7 @@ start_public() {
     streamlit run Homepage.py
 }
 
-start_colab() {
+start_public() {
     pgrep -f '.*tunnel.*127\.0\.0\.1:8501.*' | xargs -r kill -9
     echo "Starting Ollama-Companion with a public URL"
     python3 run_tunnel.py &
