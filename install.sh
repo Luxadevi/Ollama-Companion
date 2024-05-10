@@ -258,22 +258,31 @@ install_large() {
     echo "$END_MESSAGE"
 }
 
-# Colab installation function
 install_colab() {
     echo "Starting Colab installation..."
-    echo "This uses pre-compiled llama.cpp bianries"
-    echo "To freshly compile a new version use -colab_compile"
-    echo "Refer back to llama.cpp Github Repository"
-    install_packages "$OS" > /dev/null
-    clone_ollama_companion
-    pip_dependencies > /dev/null
-    pip install httpx /dev/null
-    wget https://huggingface.co/luxadev/llama.cpp_binaries/resolve/main/llama.cpp_latest.tar.gz
-    tar -xzvf /content/llama.cpp_latest.tar.gz -C /content/Ollama-Companion/
-    install_ollama_headless
+    echo "This uses pre-compiled llama.cpp binaries."
+    echo "To freshly compile a new version, use -colab_compile."
+    echo "Refer to the llama.cpp GitHub repository for more info."
+    # Redirect stdout and stderr to /dev/null for all commands
+    echo "Installing required packages..."
+    install_packages "$OS" > /dev/null 2>&1
+    echo "Cloning the Ollama Companion repository..."
+    clone_ollama_companion > /dev/null 2>&1
+    echo "Installing Python dependencies..."
+    pip_dependencies > /dev/null 2>&1
+    echo "Installing the HTTPX Python package..."
+    pip install httpx > /dev/null 2>&1
+    echo "Downloading pre-compiled llama.cpp binaries..."
+    wget https://huggingface.co/luxadev/llama.cpp_binaries/resolve/main/llama.cpp_latest.tar.gz -O /tmp/llama.cpp_latest.tar.gz > /dev/null 2>&1
+    echo "Extracting the downloaded binaries..."
+    tar -xzvf /tmp/llama.cpp_latest.tar.gz -C /content/Ollama-Companion/ > /dev/null 2>&1
+    echo "Installing Ollama in headless mode..."
+    install_ollama_headless > /dev/null 2>&1
+    echo "Logging installation type..."
     write_to_log "colab"
     echo "$END_MESSAGE"
 }
+
 
 # Colab compile installation function
 install_colab_compile() {
