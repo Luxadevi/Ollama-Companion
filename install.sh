@@ -195,7 +195,7 @@ interactive_check_python() {
     fi
 }
 
-# Writes a logfile with the current installed version number and installation type
+
 write_to_log() {
     local installation_type=$1
     echo "Writing to log file..."
@@ -211,13 +211,10 @@ run_start_script(){
 
 # END message when the installation is completed
 
-END_MESSAGE="Companion successfully installed, you can launch next time with the start.sh script. Ollama-companion will autolaunch on port 8051 and defaults to making a public facing url for your companion. If you only want to run Ollama-companion locally: run the start.sh script with '-local' or '-lan' arguments."
+END_MESSAGE="Companion successfully installed, you can launch next time with the start.sh script. Ollama-companion will autolaunch on port 8051 and defaults to making a public-facing URL for your companion. If you only want to run Ollama-companion locally: run the start.sh script with '-local' or '-lan' arguments."
 
 
-## Installation-types
-# There are 4 different types of installations
-# Use the arguments -minimal -min, -large -l, or use -interactive or -i to install the client interactively.
-# Otherwise the installation will do a standard installation without pytorch and ollama.
+## Installation types
 # Minimal installation function
 install_minimal() {
     echo "Starting minimal installation..."
@@ -233,7 +230,7 @@ install_minimal() {
 
 # Medium installation function
 install_medium() {
-    echo "Starting Standard installation..."
+    echo "Starting standard installation..."
     install_packages "$OS"
     check_python "$OS"
     clone_ollama_companion
@@ -247,7 +244,7 @@ install_medium() {
 
 # Large installation function
 install_large() {
-    echo "Starting Complete installation..."
+    echo "Starting complete installation..."
     install_packages "$OS"
     check_python "$OS"
     clone_ollama_companion
@@ -261,6 +258,32 @@ install_large() {
     echo "$END_MESSAGE"
 }
 
+# Colab installation function
+install_colab() {
+    echo "Starting Colab installation..."
+    install_packages "$OS"
+    clone_ollama_companion
+    pip_dependencies
+    wget https://huggingface.co/luxadev/llama.cpp_binaries/resolve/main/llama.cpp_latest.tar.gz
+    tar -xzvf /content/llama.cpp_latest.tar.gz -C /content/Ollama-Companion/
+    install_ollama_headless
+    write_to_log "colab"
+    echo "$END_MESSAGE"
+}
+
+# Colab compile installation function
+install_colab_compile() {
+    echo "Starting Colab compile installation..."
+    install_packages "$OS"
+    check_python "$OS"
+    clone_ollama_companion
+    clone_and_make_llama_cpp
+    pip_dependencies
+    install_ollama_headless
+    write_to_log "colab_compile"
+    echo "$END_MESSAGE"
+}
+
 # Interactive installation function
 install_interactive() {
     echo "Starting interactive installation..."
@@ -268,20 +291,19 @@ install_interactive() {
     interactive_check_python
     echo "Cloning Ollama-companion directory"
     clone_ollama_companion
-    clean_build_llama_cpp
-    echo "Do you want to use the included virtual environment and install all Python dependencies ? (recommended) (yes/no)"
+    echo "Do you want to use the included virtual environment and install all Python dependencies? (recommended) (yes/no)"
     read use_venv_response
     if [[ $use_venv_response == "yes" ]]; then
         create_python_venv
         activate_venv
         pip_dependencies
         pip install torch
-	write_to_log "interactive"
+        write_to_log "interactive"
         echo "Virtual environment set up and dependencies installed."
     else
         echo "Skipping virtual environment setup and Python dependency installation."
-	echo "Install the needed python dependencies from the requirements.txt with pip install -r requirements.txt"
-	echo "Recommended to install these python libraries in a virtual enviroment"
+        echo "Install the needed python dependencies from the requirements.txt with pip install -r requirements.txt"
+        echo "Recommended to install these python libraries in a virtual environment."
     fi
    
     # Ask the user if they want to start Ollama Companion directly
@@ -292,7 +314,6 @@ install_interactive() {
         echo "You can run start.sh from the ollama-companion directory to get started."
     fi
     echo "$END_MESSAGE"
-
 }
 
 main() {
@@ -318,6 +339,12 @@ main() {
                 ;;
             -interactive|-i)
                 requested_installation="interactive"
+                ;;
+            -colab)
+                requested_installation="colab"
+                ;;
+            -colab_compile)
+                requested_installation="colab_compile"
                 ;;
             -ollama)
                 install_ollama_flag=1
@@ -348,6 +375,12 @@ main() {
         interactive)
             install_interactive
             ;;
+        colab)
+            install_colab
+            ;;
+        colab_compile)
+            install_colab_compile
+            ;;
     esac
 
     # Install Ollama if the flag is set
@@ -364,3 +397,4 @@ main() {
 
 # Call the main function with all passed arguments
 main "$@"
+
