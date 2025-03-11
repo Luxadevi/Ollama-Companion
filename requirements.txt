@@ -13,4 +13,4 @@ pycloudflared
 sentencepiece
 transformers
 litellm[proxy]
-st-pages
+st-pages==0.4.1
